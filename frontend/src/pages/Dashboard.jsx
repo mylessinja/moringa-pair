@@ -35,6 +35,7 @@ function Dashboard() {
         </a>
         <nav className="dashboard-nav" aria-label="Main navigation">
           <a className="nav-item nav-item-active" href="#current-pairing"><span className="nav-icon">◆</span>My pairing</a>
+          <a className="nav-item" href="/assessment"><span className="nav-icon">▣</span>Assessment</a>
           <a className="nav-item" href="#pairing-history"><span className="nav-icon">▤</span>Pairing history</a>
         </nav>
         <div className="sidebar-bottom">

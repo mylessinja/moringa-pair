@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate, Link } from 'react-router-dom';
 import { signUpUser, clearError } from '../store/authSlice';
+import './Auth.css';
 
 const SignUp = () => {
   const dispatch = useDispatch();
@@ -66,9 +67,8 @@ const SignUp = () => {
   };
 
   return (
-    <div className="auth-page">
-      <h1>Sign Up</h1>
-      <form onSubmit={handleSubmit} noValidate>
+    <div className="auth-page"><div className="auth-panel"><a className="auth-brand" href="/login"><span className="brand-mark">m</span><span>Moringa<span className="brand-accent">Pair</span></span></a><div className="auth-copy"><p className="eyebrow">Start here</p><h1>Find your people.</h1><p>Create your student account and join the next weekly pairing.</p></div>
+      <form className="auth-form signup-form" onSubmit={handleSubmit} noValidate>
         <div className="form-group">
           <label htmlFor="name">Full Name</label>
           <input
@@ -124,15 +124,12 @@ const SignUp = () => {
         {/* This is where the "existing email" error from the backend shows */}
         {error && <p className="server-error">{error}</p>}
 
-        <button type="submit" disabled={status === 'loading'}>
+        <button className="auth-submit" type="submit" disabled={status === 'loading'}>
           {status === 'loading' ? 'Creating account...' : 'Sign Up'}
         </button>
-      </form>
-
-      <p>
+      </form><p className="auth-switch">
         Already have an account? <Link to="/login">Log in</Link>
-      </p>
-    </div>
+      </p></div><div className="auth-aside"><span className="aside-mark">✦</span><p>Learn out loud. Build with someone new.</p><span className="aside-caption">A student collaboration workspace</span></div></div>
   );
 };
 

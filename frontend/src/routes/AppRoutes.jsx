@@ -3,6 +3,7 @@ import Login from '../pages/Login';
 import SignUp from '../pages/SignUp';
 import Profile from '../pages/profile';
 import Dashboard from '../pages/Dashboard';
+import Assessment from '../pages/Assessment';
 
 const AppRoutes = () => {
   return (
@@ -12,6 +13,7 @@ const AppRoutes = () => {
       <Route path="/login" element={<Login />} />
       <Route path="/dashboard" element={<Dashboard />} />
       <Route path="/profile" element={<Profile />} />
+      <Route path="/assessment" element={<Assessment />} />
     </Routes>
   );
 };
