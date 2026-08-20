@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import AdminLayout from '../../../layouts/AdminLayout';
-import Button from '../../../components/ui/Button';
+import Button from '../../../components/ui/button';
 import StudentStats from '../components/StudentStats';
 import StudentsTable from '../components/StudentsTable';
 import { mockStudents } from '../data/mockStudents';

@@ -1,9 +1,9 @@
-import Badge from '../../../components/ui/Badge';
+import Badge from '@/components/ui/badge';
 
 const statusVariant = {
-  approved: 'success',
-  pending: 'pending',
-  suspended: 'danger',
+  approved: 'default',
+  pending: 'secondary',
+  suspended: 'destructive',
 };
 
 function statusLabel(status) {
@@ -43,7 +43,7 @@ export default function MentorsTable({ mentors }) {
             <td className="py-3">
               <div className="flex gap-1 flex-wrap">
                 {mentor.expertise.map((skill) => (
-                  <Badge key={skill} variant="info" dot={false}>
+                  <Badge key={skill} variant="outline">
                     {skill}
                   </Badge>
                 ))}
@@ -51,9 +51,9 @@ export default function MentorsTable({ mentors }) {
             </td>
             <td className="py-3 text-gray-600">{mentor.activeCohorts}</td>
             <td className="py-3">
-              <Badge variant={statusVariant[mentor.status]}>{statusLabel(mentor.status)}</Badge>
+              <Badge variant={statusVariant[mentor.status] || 'secondary'}>{statusLabel(mentor.status)}</Badge>
             </td>
-            <td className="py-3 text-gray-400">•••</td>
+            <td className="py-3 text-gray-400"><EllipsisVerticalIcon className="h-4 w-4" /></td>
           </tr>
         ))}
       </tbody>
