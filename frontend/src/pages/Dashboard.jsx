@@ -1,125 +1,53 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import './Dashboard.css';
 
-const weeks = [
-  { value: '2026-08-17', label: 'Week of Aug 17, 2026' },
-  { value: '2026-08-10', label: 'Week of Aug 10, 2026' },
-  { value: '2026-08-03', label: 'Week of Aug 3, 2026' },
-];
-
-const pairings = [
-  { week: '2026-08-17', partner: 'Amina Wanjiku', initials: 'AW', focus: 'Frontend foundations', date: 'Aug 17, 2026' },
-  { week: '2026-08-10', partner: 'Brian Otieno', initials: 'BO', focus: 'Career preparation', date: 'Aug 10, 2026' },
-  { week: '2026-08-03', partner: 'Nia Kamau', initials: 'NK', focus: 'Product thinking', date: 'Aug 3, 2026' },
+const students = [
+  { name: 'Alex Mercer', email: 'alex.mercer@email.com', initials: 'AM', cohort: 'SDF-FT-05', module: 'React & UI', status: 'Active Pair', score: '92%', change: '+4%', partner: 'Sarah K.', tone: 'green' },
+  { name: 'Jordan Lee', email: 'jordan.lee@email.com', initials: 'JL', cohort: 'SDF-FT-05', module: 'Data Structures', status: 'Unpaired', score: '78%', change: '0%', tone: 'blue' },
+  { name: 'Marcus Cole', email: 'marcus.cole@email.com', initials: 'MC', cohort: 'DS-PT-02', module: 'Python Backend', status: 'At-Risk', score: '54%', change: '-12%', partner: 'David T.', tone: 'orange' },
 ];
 
 function Dashboard() {
-  const [selectedWeek, setSelectedWeek] = useState('all');
-  const [isLoading, setIsLoading] = useState(false);
-  const [showBanner, setShowBanner] = useState(true);
-
-  const currentPair = pairings[0];
-
-  const handleWeekChange = (event) => {
-    setIsLoading(true);
-    setSelectedWeek(event.target.value);
-    window.setTimeout(() => setIsLoading(false), 350);
-  };
+  const [search, setSearch] = useState('');
+  const [selectedStudents, setSelectedStudents] = useState([]);
+  const filteredStudents = useMemo(() => students.filter((student) => `${student.name} ${student.email}`.toLowerCase().includes(search.toLowerCase())), [search]);
+  const toggleStudent = (name) => setSelectedStudents((current) => current.includes(name) ? current.filter((student) => student !== name) : [...current, name]);
 
   return (
     <div className="dashboard-shell">
       <aside className="dashboard-sidebar">
-        <a className="brand" href="/dashboard" aria-label="Moringa Pair home">
-          <span className="brand-mark">m</span>
-          <span>Moringa<span className="brand-accent">Pair</span></span>
-        </a>
+        <a className="brand" href="/dashboard" aria-label="MoringaPair home"><span className="brand-mark">m</span><span>Moringa<span className="brand-accent">Pair</span></span></a>
+        <p className="sidebar-label">Mentorship Platform</p>
+        <button className="sidebar-pairing-button" type="button">+ <span>New Pairing</span></button>
         <nav className="dashboard-nav" aria-label="Main navigation">
-          <a className="nav-item nav-item-active" href="#current-pairing"><span className="nav-icon">◆</span>My pairing</a>
-          <a className="nav-item" href="#pairing-history"><span className="nav-icon">▤</span>Pairing history</a>
+          <a className="nav-item" href="#overview"><span className="nav-icon">⌂</span>Overview</a>
+          <a className="nav-item nav-item-active" href="#students"><span className="nav-icon">♧</span>Student Directory</a>
+          <a className="nav-item" href="#pairings"><span className="nav-icon">↔</span>Pairings</a>
+          <a className="nav-item" href="#assessments"><span className="nav-icon">▥</span>Assessments</a>
+          <a className="nav-item" href="#reports"><span className="nav-icon">▤</span>Reports</a>
         </nav>
         <div className="sidebar-bottom">
-          <a className="nav-item" href="/profile"><span className="nav-icon">◯</span>Profile</a>
-          <a className="nav-item" href="/login"><span className="nav-icon">↪</span>Log out</a>
+          <a className="nav-item" href="#settings"><span className="nav-icon">⚙</span>Settings</a>
+          <a className="nav-item" href="#help"><span className="nav-icon">?</span>Help</a>
         </div>
       </aside>
 
       <main className="dashboard-main">
-        <header className="dashboard-header">
+        <header className="dashboard-header" id="overview">
           <div>
-            <p className="eyebrow">Student workspace</p>
-            <h1>Good morning, Ariel</h1>
+            <p className="eyebrow">Student List</p>
+            <h1>Student Directory</h1>
+            <p className="header-copy">Manage, filter, and track student pairings across all cohorts.</p>
           </div>
-          <button className="avatar-button" aria-label="Open Ariel's profile">AM</button>
+          <div className="header-actions"><button className="button button-quiet" type="button">⇩ <span>Export List</span></button><button className="button button-quiet" type="button" disabled={!selectedStudents.length}>✉ <span>Message Selected</span></button><button className="button button-primary" type="button">＋ <span>New Pairing</span></button><button className="avatar-button" aria-label="Open profile">AM</button></div>
         </header>
-
-        {showBanner && (
-          <div className="notice-banner" role="status">
-            <span className="notice-icon">✦</span>
-            <p><strong>New pairing, new perspective.</strong> Your pairing for this week is live.</p>
-            <button className="dismiss-button" onClick={() => setShowBanner(false)} aria-label="Dismiss notification">×</button>
+        <section className="directory-section" id="students">
+          <div className="toolbar"><label className="search-field"><span>⌕</span><input value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Search by name or email..." aria-label="Search by name or email" /></label><select aria-label="Filter by cohort"><option>All Cohorts</option></select><select aria-label="Filter by module"><option>All Modules</option></select><select aria-label="Filter by status"><option>Any Status</option></select></div>
+          <div className="directory-heading"><div><h2>Students <span>{filteredStudents.length}</span></h2><p>Showing students across all active cohorts</p></div><div className="view-toggle"><button className="view-active" aria-label="Card view">▦</button><button aria-label="List view">☷</button></div></div>
+          <div className="student-grid">
+            {filteredStudents.map((student) => <article className="student-card" key={student.name}><div className="student-card-top"><input type="checkbox" checked={selectedStudents.includes(student.name)} onChange={() => toggleStudent(student.name)} aria-label={`Select ${student.name}`} /><button className="more-button" aria-label={`More options for ${student.name}`}>•••</button></div><div className={`student-avatar avatar-${student.tone}`}>{student.initials}</div><h3>{student.name}</h3><p className="student-email">{student.email}</p><div className="student-tags"><span>{student.cohort}</span><span>{student.status}</span></div><div className="score-row"><div><span className="metric-label">Focus</span><strong>{student.module}</strong></div><div className="score"><span className="metric-label">Latest Score</span><strong>{student.score}</strong><small className={student.change.startsWith('-') ? 'score-down' : 'score-up'}>{student.change}</small></div></div><div className="student-card-footer">{student.partner ? <span>Paired w/ {student.partner}</span> : <span className="unpaired">Unpaired</span>}<button type="button">View Profile <span>→</span></button></div></article>)}
           </div>
-        )}
-
-        <section className="section-block" id="current-pairing">
-          <div className="section-heading">
-            <div>
-              <p className="eyebrow">This week</p>
-              <h2>My pairing</h2>
-            </div>
-            <span className="live-pill"><span />Live</span>
-          </div>
-          {isLoading ? (
-            <div className="pairing-card pairing-empty" role="status"><span className="spinner" />Loading pairing...</div>
-          ) : currentPair ? (
-            <article className="pairing-card">
-              <div className="pairing-avatar">{currentPair.initials}</div>
-              <div className="pairing-details">
-                <p className="card-kicker">You are paired with</p>
-                <h3>{currentPair.partner}</h3>
-                <p className="pair-focus">{currentPair.focus}</p>
-                <p className="pair-description">A chance to learn, share ideas, and make progress together.</p>
-              </div>
-              <button className="primary-button" type="button">View profile <span>→</span></button>
-            </article>
-          ) : (
-            <div className="pairing-card pairing-empty">
-              <span className="empty-symbol">○</span>
-              <h3>No pairing yet</h3>
-              <p>The TM has not published a pairing for this week. Check back soon.</p>
-            </div>
-          )}
-        </section>
-
-        <section className="section-block history-section" id="pairing-history">
-          <div className="section-heading history-heading">
-            <div>
-              <p className="eyebrow">Look back</p>
-              <h2>Pairing history</h2>
-            </div>
-            <label className="week-filter">
-              <span>Filter by week</span>
-              <select value={selectedWeek} onChange={handleWeekChange} aria-label="Filter pairing history by week">
-                <option value="all">All weeks</option>
-                {weeks.map((week) => <option key={week.value} value={week.value}>{week.label}</option>)}
-              </select>
-            </label>
-          </div>
-          <div className="history-table-wrap">
-            <table>
-              <thead><tr><th>Week</th><th>Paired with</th><th>Focus</th><th /></tr></thead>
-              <tbody>
-                {(selectedWeek === 'all' ? pairings : pairings.filter((pairing) => pairing.week === selectedWeek)).map((pairing) => (
-                  <tr key={pairing.week}>
-                    <td>{pairing.date}</td>
-                    <td><span className="table-person"><span className="table-avatar">{pairing.initials}</span>{pairing.partner}</span></td>
-                    <td>{pairing.focus}</td>
-                    <td><button className="table-action" aria-label={`View ${pairing.partner}'s profile`}>View <span>→</span></button></td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-          <div className="no-history" hidden={pairings.length > 0}><span>◇</span><p>No history yet</p></div>
+          <button className="load-more" type="button">3 <span>Load More Students</span> ↓</button>
         </section>
       </main>
     </div>
