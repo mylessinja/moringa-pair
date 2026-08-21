@@ -1,5 +1,5 @@
-import Badge from '@/components/ui/badge';
-
+import { Badge } from '@/components/ui/badge';
+import { MoreVertical } from 'lucide-react';
 const statusVariant = {
   approved: 'default',
   pending: 'secondary',
@@ -53,7 +53,7 @@ export default function MentorsTable({ mentors }) {
             <td className="py-3">
               <Badge variant={statusVariant[mentor.status] || 'secondary'}>{statusLabel(mentor.status)}</Badge>
             </td>
-            <td className="py-3 text-gray-400"><EllipsisVerticalIcon className="h-4 w-4" /></td>
+           
           </tr>
         ))}
       </tbody>

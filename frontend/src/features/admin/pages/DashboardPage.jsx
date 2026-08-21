@@ -3,24 +3,19 @@ import StatCard from '../components/StatCard';
 
 const stats = [
   {
-    icon: '👥',
-    iconBg: 'bg-indigo-100 text-indigo-600',
     label: 'Total Active Users',
     value: '4,829',
     trend: '↑ 12%',
     trendTone: 'positive',
   },
   {
-    icon: '💎',
-    iconBg: 'bg-blue-100 text-blue-600',
+    
     label: 'New Pairings (This Week)',
     value: '342',
     trend: '↑ 8%',
     trendTone: 'positive',
   },
   {
-    icon: '📈',
-    iconBg: 'bg-green-100 text-green-600',
     label: 'Platform Mastery Avg.',
     value: '87%',
     trend: 'Stable',
@@ -29,9 +24,9 @@ const stats = [
 ];
 
 const topMentors = [
-  { initials: 'AB', color: 'bg-purple-100 text-purple-700', name: 'Dr. Elena Silva', dept: 'Data Science', score: 98 },
-  { initials: 'CK', color: 'bg-green-100 text-green-700', name: 'Marcus Johnson', dept: 'UX Design', score: 95 },
-  { initials: 'MN', color: 'bg-blue-100 text-blue-700', name: 'Sarah Lee', dept: 'Software Eng.', score: 92 },
+  { initials: 'AB', color: 'bg-purple-100 text-purple-700', name: 'Lorenah Njeri', dept: 'Data Science', score: 98 },
+  { initials: 'CK', color: 'bg-green-100 text-green-700', name: 'James Osire', dept: 'UX Design', score: 95 },
+  { initials: 'MN', color: 'bg-blue-100 text-blue-700', name: 'Rita Wambui', dept: 'Software Eng.', score: 92 },
 ];
 
 
