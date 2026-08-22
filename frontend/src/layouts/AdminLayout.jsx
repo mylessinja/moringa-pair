@@ -115,7 +115,7 @@ export default function AdminLayout({ children, pageTitle, pageDescription }) {
       >
         <div className="flex items-center justify-between px-4 py-4">
           <div className="flex items-center gap-2.5">
-            <div className="flex h-8 w-8 items-center justify-center rounded-md bg-blue-600 text-xs font-bold text-white">
+            <div className="flex h-8 w-8 items-center justify-center rounded-md bg-primary text-xs font-bold text-white">
               M
             </div>
             <div>
@@ -144,7 +144,7 @@ export default function AdminLayout({ children, pageTitle, pageDescription }) {
                 className={({ isActive }) =>
                   `flex items-center gap-2.5 rounded-md px-3 py-2 text-sm font-medium ${
                     isActive
-                      ? 'bg-blue-50 text-blue-700'
+                      ? 'bg-primary/10 text-primary'
                       : 'text-zinc-600 hover:bg-zinc-50 hover:text-zinc-900'
                   }`
                 }
@@ -157,7 +157,7 @@ export default function AdminLayout({ children, pageTitle, pageDescription }) {
         </nav>
 
         <div className="space-y-2 border-t border-zinc-100 p-3">
-          <Button className="w-full bg-blue-600 hover:bg-blue-700" size="sm">
+          <Button className="w-full bg-primary hover:bg-primary/90" size="sm">
             <FileBarChart className="mr-2 h-3.5 w-3.5" />
             Generate Reports
           </Button>
@@ -195,7 +195,7 @@ export default function AdminLayout({ children, pageTitle, pageDescription }) {
             <Input
               type="search"
               placeholder="Search students, mentors, cohorts…"
-              className="h-9 border-zinc-200 bg-zinc-50 pl-9 text-sm shadow-none focus-visible:ring-1 focus-visible:ring-blue-500/40"
+              className="h-9 border-zinc-200 bg-zinc-50 pl-9 text-sm shadow-none focus-visible:ring-1 focus-visible:ring-primary/40"
             />
           </div>
 
@@ -228,7 +228,7 @@ export default function AdminLayout({ children, pageTitle, pageDescription }) {
                     <Button
                       variant="ghost"
                       size="sm"
-                      className="h-8 gap-1.5 text-xs text-blue-600"
+                      className="h-8 gap-1.5 text-xs text-primary"
                       onClick={markAllRead}
                     >
                       <CheckCheck className="h-3.5 w-3.5" />
@@ -244,12 +244,12 @@ export default function AdminLayout({ children, pageTitle, pageDescription }) {
                       type="button"
                       onClick={() => markRead(n.id)}
                       className={`flex w-full gap-3 border-b border-zinc-50 px-4 py-3 text-left transition-colors hover:bg-zinc-50 ${
-                        !n.read ? 'bg-blue-50/40' : ''
+                        !n.read ? 'bg-primary/10' : ''
                       }`}
                     >
                       <span
                         className={`mt-1.5 h-2 w-2 shrink-0 rounded-full ${
-                          n.read ? 'bg-transparent' : 'bg-blue-600'
+                          n.read ? 'bg-transparent' : 'bg-primary'
                         }`}
                       />
                       <div className="min-w-0 flex-1">

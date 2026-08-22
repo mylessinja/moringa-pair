@@ -14,7 +14,7 @@ export default function CohortCard({ cohort }) {
 
       <div className="grid grid-cols-3 gap-2 mb-4">
         <div>
-          <p className="text-lg font-bold text-blue-600">{cohort.students}</p>
+          <p className="text-lg font-bold text-primary">{cohort.students}</p>
           <p className="text-xs text-gray-500">Students</p>
         </div>
         <div>
@@ -34,7 +34,7 @@ export default function CohortCard({ cohort }) {
         </span>
       </div>
       <div className="h-1.5 bg-gray-100 rounded-full overflow-hidden mb-4">
-        <div className="h-full bg-blue-600 rounded-full" style={{ width: `${progressPercent}%` }} />
+        <div className="h-full bg-primary rounded-full" style={{ width: `${progressPercent}%` }} />
       </div>
 
       <div className="flex items-center gap-2 text-sm text-gray-600">

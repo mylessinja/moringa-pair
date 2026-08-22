@@ -1,7 +1,7 @@
 // The ONE Button everyone imports. Nobody writes their own <button> styling.
 export default function Button({ children, variant = 'primary', icon, className = '', ...props }) {
   const styles = {
-    primary: 'bg-blue-600 text-white hover:bg-blue-700',
+    primary: 'bg-primary text-white hover:bg-primary/90',
     secondary: 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50',
     danger: 'bg-red-600 text-white hover:bg-red-700',
   };

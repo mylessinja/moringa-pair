@@ -44,7 +44,7 @@ export default function SettingsPage() {
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
               className={`w-full text-left flex items-center gap-2 px-3 py-2 rounded-md text-sm font-medium ${
-                activeTab === tab.id ? 'bg-blue-50 text-blue-700' : 'text-gray-600 hover:bg-gray-100'
+                activeTab === tab.id ? 'bg-primary/10 text-primary' : 'text-gray-600 hover:bg-gray-100'
               }`}
             >
               <span>{tab.icon}</span>

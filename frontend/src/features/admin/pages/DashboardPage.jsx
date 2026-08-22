@@ -26,7 +26,7 @@ const stats = [
 const topMentors = [
   { initials: 'AB', color: 'bg-purple-100 text-purple-700', name: 'Lorenah Njeri', dept: 'Data Science', score: 98 },
   { initials: 'CK', color: 'bg-green-100 text-green-700', name: 'James Osire', dept: 'UX Design', score: 95 },
-  { initials: 'MN', color: 'bg-blue-100 text-blue-700', name: 'Rita Wambui', dept: 'Software Eng.', score: 92 },
+  { initials: 'MN', color: 'bg-blue-100 text-primary', name: 'Rita Wambui', dept: 'Software Eng.', score: 92 },
 ];
 
 
@@ -82,7 +82,7 @@ export default function DashboardPage() {
         <div className="border border-gray-200 rounded-lg bg-white p-5">
           <div className="flex items-center justify-between mb-4">
             <h2 className="font-bold text-gray-900">Top Mentors</h2>
-            <a href="#" className="text-xs text-blue-600 font-medium">
+            <a href="#" className="text-xs text-primary font-medium">
               View All
             </a>
           </div>
@@ -115,7 +115,7 @@ export default function DashboardPage() {
         <div className="space-y-3">
           {recentActivity.map((item) => (
             <div key={item.title} className="flex items-start gap-3 text-sm">
-              <span className="w-2 h-2 rounded-full bg-blue-600 mt-1.5" />
+              <span className="w-2 h-2 rounded-full bg-primary mt-1.5" />
               <div>
                 <p className="font-medium text-gray-900">
                   {item.title} <span className="text-gray-400 font-normal">· {item.time}</span>
