@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 import { Separator } from '@/components/ui/separator'
+import Logo from '@/components/Logo'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -184,10 +185,7 @@ export default function AdminLayout({ children, pageTitle, pageDescription }) {
             <Menu className="h-5 w-5 text-zinc-600" strokeWidth={1.75} />
           </Button>
 
-          <p className="shrink-0 text-sm font-semibold tracking-tight">
-            <span className="text-blue-600">MoringaPair</span>{' '}
-            <span className="text-zinc-800">Admin</span>
-          </p>
+          <Logo />
 
           <div className="relative mx-auto hidden w-full max-w-sm md:block">
             <Search
