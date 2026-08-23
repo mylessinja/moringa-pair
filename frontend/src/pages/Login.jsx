@@ -29,9 +29,9 @@ const Login = () => {
   return (
     <AuthLayout
       eyebrow="Welcome back"
-      title="Make this week a good one."
-      subtitle="Find your pairing, keep learning, and make meaningful progress together."
-      asideQuote="Good pairings create room for better questions."
+      title="Log in to MoringaPair"
+      subtitle="Check your weekly pairing and continue your assessment."
+      asideQuote="Students are paired weekly based on skill level and learning goals."
     >
       <form onSubmit={handleSubmit} noValidate className="space-y-4">
         <div className="space-y-1.5">
@@ -61,7 +61,7 @@ const Login = () => {
         )}
 
         <Button type="submit" className="w-full" disabled={status === 'loading'}>
-          {status === 'loading' ? 'Signing in...' : 'Log in'} →
+          {status === 'loading' ? 'Signing in...' : 'Log in'}
         </Button>
       </form>
 

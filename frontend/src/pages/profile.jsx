@@ -98,7 +98,7 @@ const Profile = () => {
               <span className="text-xs text-gray-500">
                 {saved ? 'Profile details saved.' : 'These details help your TM make thoughtful pairings.'}
               </span>
-              <Button type="submit">Save changes →</Button>
+              <Button type="submit">Save changes</Button>
             </div>
           </form>
         </CardContent>

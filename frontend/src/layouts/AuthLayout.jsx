@@ -13,12 +13,8 @@ export default function AuthLayout({ eyebrow, title, subtitle, asideQuote, child
         </div>
       </div>
 
-      <div className="hidden lg:flex flex-1 bg-primary text-primary-foreground flex-col items-center justify-center px-16 text-center">
-        <span className="text-3xl mb-6">✦</span>
-        <p className="text-xl font-medium max-w-sm">{asideQuote}</p>
-        <span className="text-xs uppercase tracking-wide opacity-70 mt-6">
-          A student collaboration workspace
-        </span>
+      <div className="hidden lg:flex flex-1 bg-primary text-primary-foreground flex-col justify-center px-16">
+        <p className="text-base max-w-sm leading-relaxed">{asideQuote}</p>
       </div>
     </div>
   );

@@ -72,9 +72,9 @@ const SignUp = () => {
   return (
     <AuthLayout
       eyebrow="Start here"
-      title="Find your people."
-      subtitle="Create your student account and join the next weekly pairing."
-      asideQuote="Learn out loud. Build with someone new."
+      title="Create your account"
+      subtitle="Sign up to get matched into next week's pairing."
+      asideQuote="New pairings are announced every Monday for active students."
     >
       <form onSubmit={handleSubmit} noValidate className="space-y-4">
         <div className="space-y-1.5">

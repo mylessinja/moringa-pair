@@ -83,7 +83,7 @@ function Dashboard() {
                   A chance to learn, share ideas, and make progress together.
                 </p>
               </div>
-              <Button variant="outline">View profile →</Button>
+              <Button variant="outline">View profile</Button>
             </CardContent>
           </Card>
         ) : (
@@ -153,7 +153,7 @@ function Dashboard() {
                           aria-label={`View ${pairing.partner}'s profile`}
                           className="text-primary text-xs font-medium hover:underline"
                         >
-                          View →
+                          View
                         </button>
                       </td>
                     </tr>

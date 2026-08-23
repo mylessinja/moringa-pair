@@ -135,7 +135,7 @@ function Assessment() {
                   {answers[questionIndex] !== undefined ? 'Answer saved' : 'Select one answer'}
                 </span>
                 <Button disabled={answers[questionIndex] === undefined} onClick={nextQuestion}>
-                  {questionIndex === questions.length - 1 ? 'See my results' : 'Next question'} →
+                  {questionIndex === questions.length - 1 ? 'See my results' : 'Next question'}
                 </Button>
               </div>
             </CardContent>
@@ -271,7 +271,7 @@ function Assessment() {
                   <span className="text-xs text-gray-500">
                     {submitted ? 'Thanks, your feedback was submitted.' : 'Your feedback is oy shared with the TM.'}
                   </span>
-                  <Button type="submit">{submitted ? 'Submitted' : 'Submit feedback'} →</Button>
+                  <Button type="submit">{submitted ? 'Submitted' : 'Submit feedback'}</Button>
                 </div>
               </form>
             </CardContent>
