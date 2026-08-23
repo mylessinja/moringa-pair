@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { Textarea } from '@/components/ui/textarea';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
-import { Star, Sparkles } from 'lucide-react';
+import { Star } from 'lucide-react';
 
 const questions = [
   {
@@ -188,11 +188,10 @@ function Assessment() {
                 ))}
               </div>
 
-              <div className="flex items-start gap-3 bg-primary/10 border border-primary/20 rounded-md px-4 py-3 mb-4">
-                <Sparkles className="w-4 h-4 text-primary flex-shrink-0 mt-0.5" />
-                <p className="text-sm text-primary">
-                  <strong>Your standout strength is communication.</strong> Consider pairing with
-                  someone who enjoys exploring ideas out loud.
+              <div className="border-l-2 border-primary bg-gray-50 px-4 py-3 mb-4">
+                <p className="text-sm text-gray-700">
+                  Your standout strength is communication. Consider pairing with someone who
+                  enjoys exploring ideas out loud.
                 </p>
               </div>
 

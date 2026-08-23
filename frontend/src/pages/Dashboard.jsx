@@ -2,7 +2,7 @@ import { useState } from 'react';
 import StudentLayout from '../layouts/StudentLayout';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { X, Sparkles, Circle } from 'lucide-react';
+import { X, Circle } from 'lucide-react';
 
 const weeks = [
   { value: '2026-08-17', label: 'Week of Aug 17, 2026' },
@@ -35,15 +35,14 @@ function Dashboard() {
   return (
     <StudentLayout eyebrow="Student workspace" title="Good morning, Ariel">
       {showBanner && (
-        <div className="flex items-center gap-3 bg-primary/10 border border-primary/20 text-primary rounded-md px-4 py-3 mb-6">
-          <Sparkles className="w-4 h-4 flex-shrink-0" />
-          <p className="text-sm flex-1">
-            <strong>New pairing, new perspective.</strong> Your pairing for this week is live.
+        <div className="flex items-center gap-3 border-l-2 border-primary bg-gray-50 px-4 py-3 mb-6">
+          <p className="text-sm text-gray-700 flex-1">
+            Your pairing for this week is live.
           </p>
           <button
             onClick={() => setShowBanner(false)}
             aria-label="Dismiss notification"
-            className="text-primary/60 hover:text-primary"
+            className="text-gray-400 hover:text-gray-600"
           >
             <X className="w-4 h-4" />
           </button>
