@@ -13,9 +13,9 @@ function StatBox({ icon, label, value }) {
 export default function StudentStats({ totalStudents, avgMastery, activeToday }) {
   return (
     <div className="flex gap-4 mb-6">
-      <StatBox icon="🎓" label="Total Students" value={totalStudents} />
-      <StatBox icon="📈" label="Avg. Mastery" value={`${avgMastery}%`} />
-      <StatBox icon="🟢" label="Active Today" value={activeToday} />
+      <StatBox icon={<GraduationCap className="w-4 h-4" />} label="Total Students" value={totalStudents} />
+      <StatBox icon={<TrendingUp className="w-4 h-4" />} label="Avg. Mastery" value={`${avgMastery}%`} />
+      <StatBox icon={<Activity className="w-4 h-4" />} label="Active Today" value={activeToday} />
     </div>
   );
 }
