@@ -4,6 +4,7 @@ import SignUp from '../pages/SignUp';
 import Profile from '../pages/profile';
 import Dashboard from '../pages/Dashboard';
 import Assessment from '../pages/Assessment';
+import RequireAuth from './RequireAuth';
 import DashboardPage from '../features/admin/pages/DashboardPage';
 import CohortsPage from '../features/admin/pages/CohortsPage';
 import MentorsPage from '../features/admin/pages/MentorsPage';
@@ -21,18 +22,33 @@ const AppRoutes = () => {
       <Route path="/assessment" element={<Assessment />} />
 
       <Route path="/admin" element={<Navigate to="/admin/dashboard" replace />} />
-      <Route path="/admin/dashboard" element={<DashboardPage />} />
-      <Route path="/admin/cohorts" element={<CohortsPage />} />
-      <Route path="/admin/mentors" element={<MentorsPage />} />
-      <Route path="/admin/students" element={<StudentsPage />} />
-      <Route path="/admin/settings" element={<SettingsPage />} />
+      <Route
+        path="/admin/dashboard"
+        element={<RequireAuth><DashboardPage /></RequireAuth>}
+      />
+      <Route
+        path="/admin/cohorts"
+        element={<RequireAuth><CohortsPage /></RequireAuth>}
+      />
+      <Route
+        path="/admin/mentors"
+        element={<RequireAuth><MentorsPage /></RequireAuth>}
+      />
+      <Route
+        path="/admin/students"
+        element={<RequireAuth><StudentsPage /></RequireAuth>}
+      />
+      <Route
+        path="/admin/settings"
+        element={<RequireAuth><SettingsPage /></RequireAuth>}
+      />
       <Route
         path="/admin/pairing-logic"
-        element={<div>Pairing Logic — no design yet, placeholder</div>}
+        element={<RequireAuth><div>Pairing Logic — no design yet, placeholder</div></RequireAuth>}
       />
       <Route
         path="/admin/audit-logs"
-        element={<div>Audit Logs — no design yet, placeholder</div>}
+        element={<RequireAuth><div>Audit Logs — no design yet, placeholder</div></RequireAuth>}
       />
     </Routes>
   );
