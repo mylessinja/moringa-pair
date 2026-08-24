@@ -1,27 +1,9 @@
+import { useEffect, useState } from 'react';
 import AdminLayout from '../../../layouts/AdminLayout';
 import StatCard from '../components/StatCard';
-
-const stats = [
-  {
-    label: 'Total Active Users',
-    value: '4,829',
-    trend: '↑ 12%',
-    trendTone: 'positive',
-  },
-  {
-    
-    label: 'New Pairings (This Week)',
-    value: '342',
-    trend: '↑ 8%',
-    trendTone: 'positive',
-  },
-  {
-    label: 'Platform Mastery Avg.',
-    value: '87%',
-    trend: 'Stable',
-    trendTone: 'neutral',
-  },
-];
+import { Link } from 'react-router-dom';
+import { getDemoStudents } from '../../../services/dummyJsonService';
+import { getPairingHistory } from '../../../services/pairingService';
 
 const topMentors = [
   { initials: 'AB', color: 'bg-purple-100 text-purple-700', name: 'Lorenah Njeri', dept: 'Data Science', score: 98 },
@@ -49,6 +31,40 @@ const recentActivity = [
 ];
 
 export default function DashboardPage() {
+  const [students, setStudents] = useState([]);
+  const [pairings, setPairings] = useState([]);
+
+  useEffect(() => {
+    Promise.all([getDemoStudents(), getPairingHistory()]).then(([loadedStudents, loadedPairings]) => {
+      setStudents(loadedStudents);
+      setPairings(loadedPairings);
+    });
+  }, []);
+
+  const averageMastery = students.length
+    ? Math.round(students.reduce((total, student) => total + student.mastery, 0) / students.length)
+    : null;
+  const stats = [
+    {
+      label: 'Total Active Users',
+      value: students.length || '—',
+      trend: students.length ? 'Current data' : 'Loading',
+      trendTone: 'neutral',
+    },
+    {
+      label: 'New Pairings (This Week)',
+      value: pairings.length || '—',
+      trend: pairings.length ? 'Published' : 'Loading',
+      trendTone: 'neutral',
+    },
+    {
+      label: 'Platform Mastery Avg.',
+      value: averageMastery ? `${averageMastery}%` : '—',
+      trend: averageMastery ? 'Current data' : 'Loading',
+      trendTone: 'neutral',
+    },
+  ];
+
   return (
     <AdminLayout
       pageTitle="Dashboard Overview"
@@ -58,6 +74,37 @@ export default function DashboardPage() {
         {stats.map((stat) => (
           <StatCard key={stat.label} {...stat} />
         ))}
+      </div>
+
+      <div className="mb-6 flex items-center justify-between rounded-lg border border-gray-200 bg-white p-5">
+        <div>
+          <h2 className="font-bold text-gray-900">Student directory</h2>
+          <p className="mt-1 text-sm text-gray-500">View student profiles, cohorts, progress, and activity.</p>
+        </div>
+        <Link to="/admin/students" className="text-sm font-medium text-primary hover:underline">
+          View students
+        </Link>
+      </div>
+
+      <div className="mb-6 rounded-lg border border-gray-200 bg-white p-5">
+        <div className="mb-4 flex items-center justify-between">
+          <div>
+            <h2 className="font-bold text-gray-900">Recent students</h2>
+            <p className="mt-1 text-sm text-gray-500">Students loaded from the shared directory.</p>
+          </div>
+          <Link to="/admin/students" className="text-sm font-medium text-primary hover:underline">
+            View all
+          </Link>
+        </div>
+        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
+          {students.slice(0, 5).map((student) => (
+            <div key={student.id} className="rounded-md border border-gray-100 p-3">
+              <p className="truncate text-sm font-medium text-gray-900">{student.name}</p>
+              <p className="mt-1 truncate text-xs text-gray-500">{student.email}</p>
+              <p className="mt-3 text-xs text-gray-500">{student.mastery}% mastery</p>
+            </div>
+          ))}
+        </div>
       </div>
 
       <div className="grid grid-cols-3 gap-4 mb-6">
@@ -82,9 +129,9 @@ export default function DashboardPage() {
         <div className="border border-gray-200 rounded-lg bg-white p-5">
           <div className="flex items-center justify-between mb-4">
             <h2 className="font-bold text-gray-900">Top Mentors</h2>
-            <a href="#" className="text-xs text-primary font-medium">
+            <Link to="/admin/mentors" className="text-xs text-primary font-medium">
               View All
-            </a>
+            </Link>
           </div>
           <div className="space-y-3">
             {topMentors.map((mentor) => (

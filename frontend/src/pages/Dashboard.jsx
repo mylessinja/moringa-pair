@@ -1,48 +1,99 @@
-import { useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
+import { useSelector } from 'react-redux';
+import './Dashboard.css';
 import StudentLayout from '../layouts/StudentLayout';
-import { Card, CardContent } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '../components/ui/card';
+import { Button } from '../components/ui/button';
 import { X, Circle } from 'lucide-react';
+import { getDemoStudents } from '../services/dummyJsonService';
 
-const weeks = [
-  { value: '2026-08-17', label: 'Week of Aug 17, 2026' },
-  { value: '2026-08-10', label: 'Week of Aug 10, 2026' },
-  { value: '2026-08-03', label: 'Week of Aug 3, 2026' },
-];
+const MODULES = ['React & UI', 'Data Structures', 'Python Backend'];
+const STATUSES = ['Active Pair', 'Unpaired', 'At-Risk'];
+const TONES = ['green', 'blue', 'orange'];
 
 const pairings = [
-  { week: '2026-08-17', partner: 'Amina Wanjiku', initials: 'AW', focus: 'Frontend foundations', date: 'Aug 17, 2026' },
-  { week: '2026-08-10', partner: 'Brian Otieno', initials: 'BO', focus: 'Career preparation', date: 'Aug 10, 2026' },
-  { week: '2026-08-03', partner: 'Nia Kamau', initials: 'NK', focus: 'Product thinking', date: 'Aug 3, 2026' },
+  {
+    week: 'week-1',
+    date: 'Week 1',
+    partner: 'Sarah Kim',
+    initials: 'SK',
+    focus: 'Frontend architecture',
+  },
+  {
+    week: 'week-2',
+    date: 'Week 2',
+    partner: 'Samuel Otieno',
+    initials: 'SO',
+    focus: 'API integration',
+  },
+  {
+    week: 'week-3',
+    date: 'Week 3',
+    partner: 'Maya Kibet',
+    initials: 'MK',
+    focus: 'Debugging workflows',
+  },
 ];
 
 function Dashboard() {
-  const [selectedWeek, setSelectedWeek] = useState('all');
-  const [isLoading, setIsLoading] = useState(false);
+  const user = useSelector((state) => state.auth.user);
+  const [search, setSearch] = useState('');
+  const [selectedStudents, setSelectedStudents] = useState([]);
+  const [students, setStudents] = useState([]);
+  const [visibleCount, setVisibleCount] = useState(6);
+  const [status, setStatus] = useState('loading');
+  const [error, setError] = useState('');
   const [showBanner, setShowBanner] = useState(true);
+
+  useEffect(() => {
+    const loadStudents = async () => {
+      try {
+        const demoStudents = await getDemoStudents();
+        setStudents(demoStudents.map((student, index) => ({
+          ...student,
+          initials: student.name.split(' ').map((part) => part[0]).join(''),
+          module: MODULES[index % MODULES.length],
+          status: STATUSES[index % STATUSES.length],
+          score: `${student.mastery}%`,
+          change: `${index % 3 === 0 ? '+' : index % 3 === 1 ? '' : '-'}${(index % 5) + 1}%`,
+          partner: index % 3 === 0 ? 'Assigned mentor' : undefined,
+          tone: TONES[index % TONES.length],
+        })));
+        setStatus('succeeded');
+      } catch (requestError) {
+        setError(requestError.message);
+        setStatus('failed');
+      }
+    };
+
+    loadStudents();
+  }, []);
+
+  const filteredStudents = useMemo(
+    () =>
+      students
+        .filter((student) => `${student.name} ${student.email}`.toLowerCase().includes(search.toLowerCase()))
+        .slice(0, visibleCount),
+    [search, students, visibleCount]
+  );
+
+  const toggleStudent = (name) =>
+    setSelectedStudents((current) =>
+      current.includes(name) ? current.filter((student) => student !== name) : [...current, name]
+    );
 
   const currentPair = pairings[0];
 
-  const handleWeekChange = (event) => {
-    setIsLoading(true);
-    setSelectedWeek(event.target.value);
-    window.setTimeout(() => setIsLoading(false), 350);
-  };
-
-  const visiblePairings =
-    selectedWeek === 'all' ? pairings : pairings.filter((pairing) => pairing.week === selectedWeek);
-
   return (
-    <StudentLayout eyebrow="Student workspace" title="Good morning, Ariel">
+    <StudentLayout eyebrow="Student workspace" title={`Welcome, ${user?.name || 'there'}`}>
       {showBanner && (
         <div className="flex items-center gap-3 border-l-2 border-primary bg-gray-50 px-4 py-3 mb-6">
-          <p className="text-sm text-gray-700 flex-1">
-            Your pairing for this week is live.
-          </p>
+          <p className="text-sm text-gray-700 flex-1">Your pairing for this week is live.</p>
           <button
             onClick={() => setShowBanner(false)}
             aria-label="Dismiss notification"
             className="text-gray-400 hover:text-gray-600"
+            type="button"
           >
             <X className="w-4 h-4" />
           </button>
@@ -61,14 +112,7 @@ function Dashboard() {
           </span>
         </div>
 
-        {isLoading ? (
-          <Card>
-            <CardContent className="flex items-center justify-center gap-2 py-10 text-gray-400 text-sm">
-              <span className="w-4 h-4 border-2 border-gray-300 border-t-primary rounded-full animate-spin" />
-              Loading pairing...
-            </CardContent>
-          </Card>
-        ) : currentPair ? (
+        {currentPair ? (
           <Card>
             <CardContent className="flex items-center gap-5 py-6">
               <div className="w-14 h-14 rounded-full bg-primary/10 text-primary flex items-center justify-center text-lg font-semibold flex-shrink-0">
@@ -98,72 +142,85 @@ function Dashboard() {
         )}
       </section>
 
-      <section id="pairing-history">
-        <div className="flex items-center justify-between mb-4 flex-wrap gap-3">
-          <div>
-            <p className="text-xs font-medium uppercase tracking-wide text-primary mb-1">Look back</p>
-            <h2 className="text-lg font-bold text-gray-900">Pairing history</h2>
-          </div>
-          <label className="flex items-center gap-2 text-sm text-gray-600">
-            <span>Filter by week</span>
-            <select
-              value={selectedWeek}
-              onChange={handleWeekChange}
-              aria-label="Filter pairing history by week"
-              className="px-3 py-2 rounded-md border border-gray-200 text-sm"
-            >
-              <option value="all">All weeks</option>
-              {weeks.map((week) => (
-                <option key={week.value} value={week.value}>
-                  {week.label}
-                </option>
-              ))}
-            </select>
+      <section className="directory-section" id="students">
+        <div className="toolbar">
+          <label className="search-field">
+            <span className="sr-only">Search</span>
+            <input
+              value={search}
+              onChange={(event) => setSearch(event.target.value)}
+              placeholder="Search by name or email..."
+              aria-label="Search by name or email"
+            />
           </label>
+          <select aria-label="Filter by cohort"><option>All Cohorts</option></select>
+          <select aria-label="Filter by module"><option>All Modules</option></select>
+          <select aria-label="Filter by status"><option>Any Status</option></select>
         </div>
 
-        <Card className="px-4">
-          <CardContent className="p-0">
-            {visiblePairings.length > 0 ? (
-              <table className="w-full text-sm">
-                <thead>
-                  <tr className="text-left text-gray-500 border-b border-gray-200">
-                    <th className="py-3 font-medium">Week</th>
-                    <th className="py-3 font-medium">Paired with</th>
-                    <th className="py-3 font-medium">Focus</th>
-                    <th className="py-3 font-medium" />
-                  </tr>
-                </thead>
-                <tbody>
-                  {visiblePairings.map((pairing) => (
-                    <tr key={pairing.week} className="border-b border-gray-100">
-                      <td className="py-3 text-gray-600">{pairing.date}</td>
-                      <td className="py-3">
-                        <span className="flex items-center gap-2 font-medium text-gray-900">
-                          <span className="w-7 h-7 rounded-full bg-gray-200 flex items-center justify-center text-xs font-semibold text-gray-600">
-                            {pairing.initials}
-                          </span>
-                          {pairing.partner}
-                        </span>
-                      </td>
-                      <td className="py-3 text-gray-600">{pairing.focus}</td>
-                      <td className="py-3">
-                        <button
-                          aria-label={`View ${pairing.partner}'s profile`}
-                          className="text-primary text-xs font-medium hover:underline"
-                        >
-                          View
-                        </button>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            ) : (
-              <div className="text-center py-10 text-gray-400 text-sm">No history yet</div>
-            )}
-          </CardContent>
-        </Card>
+        <div className="directory-heading">
+          <div>
+            <h2>
+              Students <span>{students.length}</span>
+            </h2>
+            <p>Showing students across all active cohorts</p>
+          </div>
+          <div className="view-toggle">
+            <button className="view-active" aria-label="Card view" type="button">Grid</button>
+            <button aria-label="List view" type="button">List</button>
+          </div>
+        </div>
+
+        {status === 'loading' && <p className="directory-message">Loading students...</p>}
+        {status === 'failed' && <p className="directory-message directory-message-error">{error}</p>}
+
+        <div className="student-grid">
+          {filteredStudents.map((student) => (
+            <article className="student-card" key={student.id}>
+              <div className="student-card-top">
+                <input
+                  type="checkbox"
+                  checked={selectedStudents.includes(student.name)}
+                  onChange={() => toggleStudent(student.name)}
+                  aria-label={`Select ${student.name}`}
+                />
+                <button className="more-button" aria-label={`More options for ${student.name}`} type="button">
+                  More
+                </button>
+              </div>
+              <div className={`student-avatar avatar-${student.tone}`}>{student.initials}</div>
+              <h3>{student.name}</h3>
+              <p className="student-email">{student.email}</p>
+              <div className="student-tags">
+                <span>{student.cohort}</span>
+                <span>{student.status}</span>
+              </div>
+              <div className="score-row">
+                <div>
+                  <span className="metric-label">Focus</span>
+                  <strong>{student.module}</strong>
+                </div>
+                <div className="score">
+                  <span className="metric-label">Latest Score</span>
+                  <strong>{student.score}</strong>
+                  <small className={student.change.startsWith('-') ? 'score-down' : 'score-up'}>
+                    {student.change}
+                  </small>
+                </div>
+              </div>
+              <div className="student-card-footer">
+                {student.partner ? <span>Paired w/ {student.partner}</span> : <span className="unpaired">Unpaired</span>}
+                <button type="button">View Profile</button>
+              </div>
+            </article>
+          ))}
+        </div>
+
+        {visibleCount < students.length && (
+          <button className="load-more" type="button" onClick={() => setVisibleCount((count) => count + 6)}>
+            {students.length - visibleCount} <span>Load More Students</span>
+          </button>
+        )}
       </section>
     </StudentLayout>
   );

@@ -5,25 +5,25 @@ const tabs = [
   {
     id: 'pairing-algorithm',
     label: 'Pairing Algorithm',
-    icon: '📐',
+    icon: 'Algorithm',
     description: 'Configure how weekly pairings are generated.',
   },
   {
     id: 'user-permissions',
     label: 'User Permissions',
-    icon: '🔒',
+    icon: 'Permissions',
     description: 'Manage what each role can see and do.',
   },
   {
     id: 'notification-templates',
     label: 'Notification Templates',
-    icon: '✉️',
+    icon: 'Messages',
     description: 'Customize automated emails and in-app alerts.',
   },
   {
     id: 'platform-branding',
     label: 'Platform Branding',
-    icon: '🎨',
+    icon: 'Branding',
     description: 'Update logo, colors, and platform name.',
   },
 ];
@@ -47,7 +47,7 @@ export default function SettingsPage() {
                 activeTab === tab.id ? 'bg-primary/10 text-primary' : 'text-gray-600 hover:bg-gray-100'
               }`}
             >
-              <span>{tab.icon}</span>
+              <span className="text-xs uppercase tracking-wide text-gray-500">{tab.icon}</span>
               {tab.label}
             </button>
           ))}

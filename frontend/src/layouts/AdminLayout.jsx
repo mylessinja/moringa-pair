@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { NavLink, useNavigate } from 'react-router-dom'
 import { Button } from '@/components/ui/button'
+import { useDispatch } from 'react-redux'
 import { Input } from '@/components/ui/input'
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 import { Separator } from '@/components/ui/separator'
@@ -22,22 +23,19 @@ import {
   Users,
   GraduationCap,
   UserCog,
-  GitBranch,
-  ScrollText,
   LogOut,
   FileBarChart,
   Menu,
   PanelLeftClose,
   CheckCheck,
 } from 'lucide-react'
+import { logout } from '../store/authSlice'
 
 const navItems = [
   { to: '/admin/dashboard', label: 'Dashboard', icon: LayoutDashboard },
   { to: '/admin/cohorts', label: 'Cohorts', icon: GraduationCap },
   { to: '/admin/mentors', label: 'Mentors', icon: UserCog },
   { to: '/admin/students', label: 'Students', icon: Users },
-  { to: '/admin/pairing-logic', label: 'Pairing Logic', icon: GitBranch },
-  { to: '/admin/audit-logs', label: 'Audit Logs', icon: ScrollText },
   { to: '/admin/settings', label: 'Settings', icon: Settings },
 ]
 
@@ -67,6 +65,7 @@ const initialNotifications = [
 
 export default function AdminLayout({ children, pageTitle, pageDescription }) {
   const navigate = useNavigate()
+  const dispatch = useDispatch()
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [notifications, setNotifications] = useState(initialNotifications)
 
@@ -165,7 +164,10 @@ export default function AdminLayout({ children, pageTitle, pageDescription }) {
             variant="ghost"
             size="sm"
             className="w-full justify-start text-zinc-500"
-            onClick={() => navigate('/login')}
+                    onClick={() => {
+                      dispatch(logout())
+                      navigate('/login')
+                    }}
           >
             <LogOut className="mr-2 h-3.5 w-3.5" />
             Sign out
@@ -261,16 +263,6 @@ export default function AdminLayout({ children, pageTitle, pageDescription }) {
                   ))}
                 </div>
 
-                <div className="border-t border-zinc-100 p-2">
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className="w-full text-xs text-zinc-600"
-                    onClick={() => navigate('/admin/audit-logs')}
-                  >
-                    View all activity
-                  </Button>
-                </div>
               </DropdownMenuContent>
             </DropdownMenu>
 

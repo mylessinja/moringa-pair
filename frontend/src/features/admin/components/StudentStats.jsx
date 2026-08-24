@@ -1,3 +1,5 @@
+import { Activity, GraduationCap, TrendingUp } from 'lucide-react';
+
 function StatBox({ icon, label, value }) {
   return (
     <div className="flex-1 border border-gray-200 rounded-lg bg-white px-5 py-4 flex items-center justify-between">
