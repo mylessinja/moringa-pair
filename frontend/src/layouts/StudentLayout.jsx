@@ -1,6 +1,8 @@
 import { NavLink, Link } from 'react-router-dom';
+import { useDispatch } from 'react-redux';
 import { LayoutDashboard, ClipboardList, History, CircleUserRound, LogOut } from 'lucide-react';
 import Logo from '../components/Logo';
+import { logout } from '../store/authSlice';
 
 const navItems = [
   { to: '/dashboard', label: 'My Pairing', icon: LayoutDashboard },
@@ -9,6 +11,8 @@ const navItems = [
 ];
 
 export default function StudentLayout({ children, eyebrow, title, avatarInitials = 'AM' }) {
+  const dispatch = useDispatch();
+
   return (
     <div className="flex min-h-screen bg-gray-50">
       <aside className="w-64 bg-white border-r border-gray-200 flex flex-col justify-between">
@@ -49,6 +53,7 @@ export default function StudentLayout({ children, eyebrow, title, avatarInitials
           </NavLink>
           <Link
             to="/login"
+            onClick={() => dispatch(logout())}
             className="flex items-center gap-2 px-3 py-2 rounded-md text-sm font-medium text-gray-600 hover:bg-gray-100"
           >
             <LogOut className="w-4 h-4" />

@@ -1,5 +1,8 @@
+import { useEffect, useState } from 'react';
 import AdminLayout from '../../../layouts/AdminLayout';
 import StatCard from '../components/StatCard';
+import { Link } from 'react-router-dom';
+import { getDemoStudents } from '../../../services/dummyJsonService';
 
 const stats = [
   {
@@ -49,6 +52,12 @@ const recentActivity = [
 ];
 
 export default function DashboardPage() {
+  const [students, setStudents] = useState([]);
+
+  useEffect(() => {
+    getDemoStudents().then(setStudents);
+  }, []);
+
   return (
     <AdminLayout
       pageTitle="Dashboard Overview"
@@ -58,6 +67,37 @@ export default function DashboardPage() {
         {stats.map((stat) => (
           <StatCard key={stat.label} {...stat} />
         ))}
+      </div>
+
+      <div className="mb-6 flex items-center justify-between rounded-lg border border-gray-200 bg-white p-5">
+        <div>
+          <h2 className="font-bold text-gray-900">Student directory</h2>
+          <p className="mt-1 text-sm text-gray-500">View student profiles, cohorts, progress, and activity.</p>
+        </div>
+        <Link to="/admin/students" className="text-sm font-medium text-primary hover:underline">
+          View students
+        </Link>
+      </div>
+
+      <div className="mb-6 rounded-lg border border-gray-200 bg-white p-5">
+        <div className="mb-4 flex items-center justify-between">
+          <div>
+            <h2 className="font-bold text-gray-900">Recent students</h2>
+            <p className="mt-1 text-sm text-gray-500">Students loaded from the shared directory.</p>
+          </div>
+          <Link to="/admin/students" className="text-sm font-medium text-primary hover:underline">
+            View all
+          </Link>
+        </div>
+        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
+          {students.slice(0, 5).map((student) => (
+            <div key={student.id} className="rounded-md border border-gray-100 p-3">
+              <p className="truncate text-sm font-medium text-gray-900">{student.name}</p>
+              <p className="mt-1 truncate text-xs text-gray-500">{student.email}</p>
+              <p className="mt-3 text-xs text-gray-500">{student.mastery}% mastery</p>
+            </div>
+          ))}
+        </div>
       </div>
 
       <div className="grid grid-cols-3 gap-4 mb-6">
@@ -82,9 +122,9 @@ export default function DashboardPage() {
         <div className="border border-gray-200 rounded-lg bg-white p-5">
           <div className="flex items-center justify-between mb-4">
             <h2 className="font-bold text-gray-900">Top Mentors</h2>
-            <a href="#" className="text-xs text-primary font-medium">
+            <Link to="/admin/mentors" className="text-xs text-primary font-medium">
               View All
-            </a>
+            </Link>
           </div>
           <div className="space-y-3">
             {topMentors.map((mentor) => (

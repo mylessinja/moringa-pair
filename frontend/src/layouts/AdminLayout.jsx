@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { NavLink, useNavigate } from 'react-router-dom'
 import { Button } from '@/components/ui/button'
+import { useDispatch } from 'react-redux'
 import { Input } from '@/components/ui/input'
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 import { Separator } from '@/components/ui/separator'
@@ -30,6 +31,7 @@ import {
   PanelLeftClose,
   CheckCheck,
 } from 'lucide-react'
+import { logout } from '../store/authSlice'
 
 const navItems = [
   { to: '/admin/dashboard', label: 'Dashboard', icon: LayoutDashboard },
@@ -67,6 +69,7 @@ const initialNotifications = [
 
 export default function AdminLayout({ children, pageTitle, pageDescription }) {
   const navigate = useNavigate()
+  const dispatch = useDispatch()
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [notifications, setNotifications] = useState(initialNotifications)
 
@@ -165,7 +168,10 @@ export default function AdminLayout({ children, pageTitle, pageDescription }) {
             variant="ghost"
             size="sm"
             className="w-full justify-start text-zinc-500"
-            onClick={() => navigate('/login')}
+                    onClick={() => {
+                      dispatch(logout())
+                      navigate('/login')
+                    }}
           >
             <LogOut className="mr-2 h-3.5 w-3.5" />
             Sign out

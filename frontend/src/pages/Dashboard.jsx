@@ -1,9 +1,11 @@
 import { useEffect, useMemo, useState } from 'react';
+import { useSelector } from 'react-redux';
 import './Dashboard.css';
 import StudentLayout from '../layouts/StudentLayout';
 import { Card, CardContent } from '../components/ui/card';
 import { Button } from '../components/ui/button';
 import { X, Circle } from 'lucide-react';
+import { getDemoStudents } from '../services/dummyJsonService';
 
 const MODULES = ['React & UI', 'Data Structures', 'Python Backend'];
 const STATUSES = ['Active Pair', 'Unpaired', 'At-Risk'];
@@ -13,8 +15,8 @@ const pairings = [
   {
     week: 'week-1',
     date: 'Week 1',
-    partner: 'Ariel Njeri',
-    initials: 'AN',
+    partner: 'Sarah Kim',
+    initials: 'SK',
     focus: 'Frontend architecture',
   },
   {
@@ -39,22 +41,8 @@ const weeks = [
   { label: 'Week 3', value: 'week-3' },
 ];
 
-const mapUserToStudent = (user, index) => ({
-  id: user.id,
-  name: `${user.firstName} ${user.lastName}`,
-  email: user.email,
-  initials: `${user.firstName[0]}${user.lastName[0]}`,
-  cohort: `SDF-${index % 2 ? 'PT' : 'FT'}-${String((index % 5) + 1).padStart(2, '0')}`,
-  module: MODULES[index % MODULES.length],
-  status: STATUSES[index % STATUSES.length],
-  score: `${60 + ((user.id * 7) % 36)}%`,
-  change: `${index % 3 === 0 ? '+' : index % 3 === 1 ? '' : '-'}${(index % 5) + 1}%`,
-  partner: index % 3 === 0 ? 'Assigned mentor' : undefined,
-  tone: TONES[index % TONES.length],
-  image: user.image,
-});
-
 function Dashboard() {
+  const user = useSelector((state) => state.auth.user);
   const [search, setSearch] = useState('');
   const [selectedStudents, setSelectedStudents] = useState([]);
   const [students, setStudents] = useState([]);
@@ -67,10 +55,17 @@ function Dashboard() {
   useEffect(() => {
     const loadStudents = async () => {
       try {
-        const response = await fetch('https://dummyjson.com/users?limit=30');
-        if (!response.ok) throw new Error('Unable to load students');
-        const data = await response.json();
-        setStudents(data.users.map(mapUserToStudent));
+        const demoStudents = await getDemoStudents();
+        setStudents(demoStudents.map((student, index) => ({
+          ...student,
+          initials: student.name.split(' ').map((part) => part[0]).join(''),
+          module: MODULES[index % MODULES.length],
+          status: STATUSES[index % STATUSES.length],
+          score: `${student.mastery}%`,
+          change: `${index % 3 === 0 ? '+' : index % 3 === 1 ? '' : '-'}${(index % 5) + 1}%`,
+          partner: index % 3 === 0 ? 'Assigned mentor' : undefined,
+          tone: TONES[index % TONES.length],
+        })));
         setStatus('succeeded');
       } catch (requestError) {
         setError(requestError.message);
@@ -104,7 +99,7 @@ function Dashboard() {
   };
 
   return (
-    <StudentLayout eyebrow="Student workspace" title="Good morning, Ariel">
+    <StudentLayout eyebrow="Student workspace" title={`Welcome, ${user?.name || 'there'}`}>
       {showBanner && (
         <div className="flex items-center gap-3 border-l-2 border-primary bg-gray-50 px-4 py-3 mb-6">
           <p className="text-sm text-gray-700 flex-1">Your pairing for this week is live.</p>

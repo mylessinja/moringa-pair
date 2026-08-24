@@ -1,25 +1,28 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import AdminLayout from '../../../layouts/AdminLayout';
 import { Button } from '../../../components/ui/button';
 import StudentStats from '../components/StudentStats';
 import StudentsTable from '../components/StudentsTable';
-import { mockStudents } from '../data/mockStudents';
+import { getDemoStudents } from '../../../services/dummyJsonService';
 
 export default function StudentsPage() {
   const [search, setSearch] = useState('');
   const [page, setPage] = useState(1);
+  const [students, setStudents] = useState([]);
 
-  // TODO: replace mockStudents + this filter with an RTK Query fetch
-  // once GET /students exists on the backend.
-  const students = mockStudents.filter((s) =>
+  useEffect(() => {
+    getDemoStudents().then(setStudents);
+  }, []);
+
+  const visibleStudents = students.filter((s) =>
     s.name.toLowerCase().includes(search.toLowerCase())
   );
 
-  const totalStudents = mockStudents.length;
+  const totalStudents = students.length;
   const avgMastery = Math.round(
-    mockStudents.reduce((sum, s) => sum + s.mastery, 0) / mockStudents.length
+    students.reduce((sum, s) => sum + s.mastery, 0) / (students.length || 1)
   );
-  const activeToday = mockStudents.length; // placeholder until "last active" is real
+  const activeToday = students.length;
 
   return (
     <AdminLayout
@@ -52,10 +55,10 @@ export default function StudentsPage() {
       </div>
 
       <div className="bg-white border border-gray-200 rounded-lg px-4">
-        <StudentsTable students={students} />
+        <StudentsTable students={visibleStudents} />
         <div className="flex justify-between items-center py-3 text-sm text-gray-500">
           <span>
-            Showing 1 to {students.length} of {totalStudents} students
+            Showing 1 to {visibleStudents.length} of {totalStudents} students
           </span>
           <div className="flex gap-2">
             <Button variant="secondary" onClick={() => setPage((p) => Math.max(1, p - 1))}>

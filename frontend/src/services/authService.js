@@ -23,6 +23,8 @@ const DEMO_USERS = {
   },
 };
 
+const normalizeUser = (response) => response?.user || response;
+
 const signUp = async (userData) => {
   const normalizedEmail = (userData.email || '').toLowerCase();
   const demoUser = DEMO_USERS[normalizedEmail];
@@ -33,7 +35,7 @@ const signUp = async (userData) => {
 
   try {
     const response = await axios.post(`${API_URL}/signup`, userData);
-    return response.data;
+    return normalizeUser(response.data);
   } catch (error) {
     if (error.code === 'ERR_NETWORK' || error.message.includes('localhost:5000')) {
       return {
@@ -57,14 +59,14 @@ const login = async (credentials) => {
 
   try {
     const response = await axios.post(`${API_URL}/login`, credentials);
-    return response.data;
+    return normalizeUser(response.data);
   } catch (error) {
     if (error.code === 'ERR_NETWORK' || error.message.includes('localhost:5000')) {
       const fallbackUser = DEMO_USERS[normalizedEmail];
       if (fallbackUser && fallbackUser.password === credentials.password) {
         return fallbackUser.user;
       }
-      throw new Error('Use admin@moringapair.com / Admin123! for the demo admin account.');
+      throw new Error('Use one of the demo role accounts shown on the login page.');
     }
     throw error;
   }
