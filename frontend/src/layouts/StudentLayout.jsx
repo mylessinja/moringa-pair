@@ -7,7 +7,7 @@ import { logout } from '../store/authSlice';
 const navItems = [
   { to: '/dashboard', label: 'My Pairing', icon: LayoutDashboard },
   { to: '/assessment', label: 'Assessment', icon: ClipboardList },
-  { to: '/dashboard#pairing-history', label: 'Pairing History', icon: History },
+  { to: '/pairing/history', label: 'Pairing History', icon: History },
 ];
 
 export default function StudentLayout({ children, eyebrow, title, avatarInitials = 'AM' }) {

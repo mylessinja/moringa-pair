@@ -35,12 +35,6 @@ const pairings = [
   },
 ];
 
-const weeks = [
-  { label: 'Week 1', value: 'week-1' },
-  { label: 'Week 2', value: 'week-2' },
-  { label: 'Week 3', value: 'week-3' },
-];
-
 function Dashboard() {
   const user = useSelector((state) => state.auth.user);
   const [search, setSearch] = useState('');
@@ -50,7 +44,6 @@ function Dashboard() {
   const [status, setStatus] = useState('loading');
   const [error, setError] = useState('');
   const [showBanner, setShowBanner] = useState(true);
-  const [selectedWeek, setSelectedWeek] = useState('all');
 
   useEffect(() => {
     const loadStudents = async () => {
@@ -89,14 +82,7 @@ function Dashboard() {
       current.includes(name) ? current.filter((student) => student !== name) : [...current, name]
     );
 
-  const visiblePairings =
-    selectedWeek === 'all' ? pairings : pairings.filter((pairing) => pairing.week === selectedWeek);
-
   const currentPair = pairings[0];
-
-  const handleWeekChange = (event) => {
-    setSelectedWeek(event.target.value);
-  };
 
   return (
     <StudentLayout eyebrow="Student workspace" title={`Welcome, ${user?.name || 'there'}`}>
@@ -154,75 +140,6 @@ function Dashboard() {
             </CardContent>
           </Card>
         )}
-      </section>
-
-      <section id="pairing-history" className="mb-8">
-        <div className="flex items-center justify-between mb-4 flex-wrap gap-3">
-          <div>
-            <p className="text-xs font-medium uppercase tracking-wide text-primary mb-1">Look back</p>
-            <h2 className="text-lg font-bold text-gray-900">Pairing history</h2>
-          </div>
-          <label className="flex items-center gap-2 text-sm text-gray-600">
-            <span>Filter by week</span>
-            <select
-              value={selectedWeek}
-              onChange={handleWeekChange}
-              aria-label="Filter pairing history by week"
-              className="px-3 py-2 rounded-md border border-gray-200 text-sm"
-            >
-              <option value="all">All weeks</option>
-              {weeks.map((week) => (
-                <option key={week.value} value={week.value}>
-                  {week.label}
-                </option>
-              ))}
-            </select>
-          </label>
-        </div>
-
-        <Card className="px-4">
-          <CardContent className="p-0">
-            {visiblePairings.length > 0 ? (
-              <table className="w-full text-sm">
-                <thead>
-                  <tr className="text-left text-gray-500 border-b border-gray-200">
-                    <th className="py-3 font-medium">Week</th>
-                    <th className="py-3 font-medium">Paired with</th>
-                    <th className="py-3 font-medium">Focus</th>
-                    <th className="py-3 font-medium" />
-                  </tr>
-                </thead>
-                <tbody>
-                  {visiblePairings.map((pairing) => (
-                    <tr key={pairing.week} className="border-b border-gray-100">
-                      <td className="py-3 text-gray-600">{pairing.date}</td>
-                      <td className="py-3">
-                        <span className="flex items-center gap-2 font-medium text-gray-900">
-                          <span className="w-7 h-7 rounded-full bg-gray-200 flex items-center justify-center text-xs font-semibold text-gray-600">
-                            {pairing.initials}
-                          </span>
-                          {pairing.partner}
-                        </span>
-                      </td>
-                      <td className="py-3 text-gray-600">{pairing.focus}</td>
-                      <td className="py-3">
-                        <button
-                          aria-label={`View ${pairing.partner}'s profile`}
-                          className="text-primary text-xs font-medium hover:underline"
-                          type="button"
-                        >
-                          View
-                        </button>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            ) : (
-              <div className="text-center py-10 text-gray-400 text-sm">No history yet</div>
-            )}
-          </CardContent>
-        </Card>
       </section>
 
       <section className="directory-section" id="students">
