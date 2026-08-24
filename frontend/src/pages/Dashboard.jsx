@@ -233,7 +233,7 @@ function Dashboard() {
       <section className="directory-section" id="students">
         <div className="toolbar">
           <label className="search-field">
-            <span>⌕</span>
+            <span className="sr-only">Search</span>
             <input
               value={search}
               onChange={(event) => setSearch(event.target.value)}
@@ -254,8 +254,8 @@ function Dashboard() {
             <p>Showing students across all active cohorts</p>
           </div>
           <div className="view-toggle">
-            <button className="view-active" aria-label="Card view" type="button">▦</button>
-            <button aria-label="List view" type="button">☷</button>
+            <button className="view-active" aria-label="Card view" type="button">Grid</button>
+            <button aria-label="List view" type="button">List</button>
           </div>
         </div>
 
@@ -273,7 +273,7 @@ function Dashboard() {
                   aria-label={`Select ${student.name}`}
                 />
                 <button className="more-button" aria-label={`More options for ${student.name}`} type="button">
-                  •••
+                  More
                 </button>
               </div>
               <div className={`student-avatar avatar-${student.tone}`}>{student.initials}</div>
@@ -298,7 +298,7 @@ function Dashboard() {
               </div>
               <div className="student-card-footer">
                 {student.partner ? <span>Paired w/ {student.partner}</span> : <span className="unpaired">Unpaired</span>}
-                <button type="button">View Profile <span>→</span></button>
+                <button type="button">View Profile</button>
               </div>
             </article>
           ))}
@@ -306,7 +306,7 @@ function Dashboard() {
 
         {visibleCount < students.length && (
           <button className="load-more" type="button" onClick={() => setVisibleCount((count) => count + 6)}>
-            {students.length - visibleCount} <span>Load More Students</span> ↓
+            {students.length - visibleCount} <span>Load More Students</span>
           </button>
         )}
       </section>

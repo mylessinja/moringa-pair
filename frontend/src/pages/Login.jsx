@@ -23,7 +23,14 @@ const Login = () => {
     }
     setFormError('');
     const result = await dispatch(loginUser(credentials));
-    if (loginUser.fulfilled.match(result)) navigate('/dashboard');
+    if (loginUser.fulfilled.match(result)) {
+      const loggedUser = result.payload;
+      if (loggedUser?.role === 'admin') {
+        navigate('/admin/dashboard');
+        return;
+      }
+      navigate('/dashboard');
+    }
   };
 
   return (
