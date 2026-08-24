@@ -46,14 +46,6 @@ const AppRoutes = () => {
         path="/admin/settings"
         element={<RequireAuth allowedRoles={['admin']}><SettingsPage /></RequireAuth>}
       />
-      <Route
-        path="/admin/pairing-logic"
-        element={<RequireAuth allowedRoles={['admin']}><div>Pairing Logic — no design yet, placeholder</div></RequireAuth>}
-      />
-      <Route
-        path="/admin/audit-logs"
-        element={<RequireAuth allowedRoles={['admin']}><div>Audit Logs — no design yet, placeholder</div></RequireAuth>}
-      />
     </Routes>
   );
 };

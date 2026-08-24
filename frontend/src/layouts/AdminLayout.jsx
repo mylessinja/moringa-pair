@@ -23,8 +23,6 @@ import {
   Users,
   GraduationCap,
   UserCog,
-  GitBranch,
-  ScrollText,
   LogOut,
   FileBarChart,
   Menu,
@@ -38,8 +36,6 @@ const navItems = [
   { to: '/admin/cohorts', label: 'Cohorts', icon: GraduationCap },
   { to: '/admin/mentors', label: 'Mentors', icon: UserCog },
   { to: '/admin/students', label: 'Students', icon: Users },
-  { to: '/admin/pairing-logic', label: 'Pairing Logic', icon: GitBranch },
-  { to: '/admin/audit-logs', label: 'Audit Logs', icon: ScrollText },
   { to: '/admin/settings', label: 'Settings', icon: Settings },
 ]
 
@@ -267,16 +263,6 @@ export default function AdminLayout({ children, pageTitle, pageDescription }) {
                   ))}
                 </div>
 
-                <div className="border-t border-zinc-100 p-2">
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className="w-full text-xs text-zinc-600"
-                    onClick={() => navigate('/admin/audit-logs')}
-                  >
-                    View all activity
-                  </Button>
-                </div>
               </DropdownMenuContent>
             </DropdownMenu>
 
