@@ -2,6 +2,10 @@ import { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate, Link } from 'react-router-dom';
 import { signUpUser, clearError } from '../store/authSlice';
+import AuthLayout from '../layouts/AuthLayout';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 
 const SignUp = () => {
   const dispatch = useDispatch();
@@ -66,50 +70,40 @@ const SignUp = () => {
   };
 
   return (
-    <div className="auth-page">
-      <h1>Sign Up</h1>
-      <form onSubmit={handleSubmit} noValidate>
-        <div className="form-group">
-          <label htmlFor="name">Full Name</label>
-          <input
-            id="name"
-            name="name"
-            type="text"
-            value={formData.name}
-            onChange={handleChange}
-          />
-          {formErrors.name && <p className="field-error">{formErrors.name}</p>}
+    <AuthLayout
+      eyebrow="Start here"
+      title="Create your account"
+      subtitle="Sign up to get matched into next week's pairing."
+      asideQuote="New pairings are announced every Monday for active students."
+    >
+      <form onSubmit={handleSubmit} noValidate className="space-y-4">
+        <div className="space-y-1.5">
+          <Label htmlFor="name">Full Name</Label>
+          <Input id="name" name="name" type="text" value={formData.name} onChange={handleChange} />
+          {formErrors.name && <p className="text-sm text-red-600">{formErrors.name}</p>}
         </div>
 
-        <div className="form-group">
-          <label htmlFor="email">Email</label>
-          <input
-            id="email"
-            name="email"
-            type="email"
-            value={formData.email}
-            onChange={handleChange}
-          />
-          {formErrors.email && <p className="field-error">{formErrors.email}</p>}
+        <div className="space-y-1.5">
+          <Label htmlFor="email">Email</Label>
+          <Input id="email" name="email" type="email" value={formData.email} onChange={handleChange} />
+          {formErrors.email && <p className="text-sm text-red-600">{formErrors.email}</p>}
         </div>
 
-        <div className="form-group">
-          <label htmlFor="password">Password</label>
-          <input
+        <div className="space-y-1.5">
+          <Label htmlFor="password">Password</Label>
+          <Input
             id="password"
             name="password"
             type="password"
             value={formData.password}
             onChange={handleChange}
           />
-          {formErrors.password && (
-            <p className="field-error">{formErrors.password}</p>
-          )}
+          {formErrors.password && <p className="text-sm text-red-600">{formErrors.password}</p>}
         </div>
 
-        <div className="form-group">
-          <label htmlFor="confirmPassword">Confirm Password</label>
-          <input
+        <div className="space-y-1.5">
+          <Label htmlFor="confirmPassword">Confirm Password</Label>
+          <Input
             id="confirmPassword"
             name="confirmPassword"
             type="password"
@@ -117,22 +111,25 @@ const SignUp = () => {
             onChange={handleChange}
           />
           {formErrors.confirmPassword && (
-            <p className="field-error">{formErrors.confirmPassword}</p>
+            <p className="text-sm text-red-600">{formErrors.confirmPassword}</p>
           )}
         </div>
 
         {/* This is where the "existing email" error from the backend shows */}
-        {error && <p className="server-error">{error}</p>}
+        {error && <p className="text-sm text-red-600">{error}</p>}
 
-        <button type="submit" disabled={status === 'loading'}>
+        <Button type="submit" className="w-full" disabled={status === 'loading'}>
           {status === 'loading' ? 'Creating account...' : 'Sign Up'}
-        </button>
+        </Button>
       </form>
 
-      <p>
-        Already have an account? <Link to="/login">Log in</Link>
+      <p className="text-sm text-gray-500 mt-6">
+        Already have an account?{' '}
+        <Link to="/login" className="text-primary font-medium hover:underline">
+          Log in
+        </Link>
       </p>
-    </div>
+    </AuthLayout>
   );
 };
 
