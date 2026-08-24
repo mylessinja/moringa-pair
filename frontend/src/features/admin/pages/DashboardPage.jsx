@@ -3,28 +3,7 @@ import AdminLayout from '../../../layouts/AdminLayout';
 import StatCard from '../components/StatCard';
 import { Link } from 'react-router-dom';
 import { getDemoStudents } from '../../../services/dummyJsonService';
-
-const stats = [
-  {
-    label: 'Total Active Users',
-    value: '4,829',
-    trend: '↑ 12%',
-    trendTone: 'positive',
-  },
-  {
-    
-    label: 'New Pairings (This Week)',
-    value: '342',
-    trend: '↑ 8%',
-    trendTone: 'positive',
-  },
-  {
-    label: 'Platform Mastery Avg.',
-    value: '87%',
-    trend: 'Stable',
-    trendTone: 'neutral',
-  },
-];
+import { getPairingHistory } from '../../../services/pairingService';
 
 const topMentors = [
   { initials: 'AB', color: 'bg-purple-100 text-purple-700', name: 'Lorenah Njeri', dept: 'Data Science', score: 98 },
@@ -53,10 +32,38 @@ const recentActivity = [
 
 export default function DashboardPage() {
   const [students, setStudents] = useState([]);
+  const [pairings, setPairings] = useState([]);
 
   useEffect(() => {
-    getDemoStudents().then(setStudents);
+    Promise.all([getDemoStudents(), getPairingHistory()]).then(([loadedStudents, loadedPairings]) => {
+      setStudents(loadedStudents);
+      setPairings(loadedPairings);
+    });
   }, []);
+
+  const averageMastery = students.length
+    ? Math.round(students.reduce((total, student) => total + student.mastery, 0) / students.length)
+    : null;
+  const stats = [
+    {
+      label: 'Total Active Users',
+      value: students.length || '—',
+      trend: students.length ? 'Current data' : 'Loading',
+      trendTone: 'neutral',
+    },
+    {
+      label: 'New Pairings (This Week)',
+      value: pairings.length || '—',
+      trend: pairings.length ? 'Published' : 'Loading',
+      trendTone: 'neutral',
+    },
+    {
+      label: 'Platform Mastery Avg.',
+      value: averageMastery ? `${averageMastery}%` : '—',
+      trend: averageMastery ? 'Current data' : 'Loading',
+      trendTone: 'neutral',
+    },
+  ];
 
   return (
     <AdminLayout
