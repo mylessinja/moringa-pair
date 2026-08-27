@@ -1,38 +1,33 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useSelector } from 'react-redux';
-import './Dashboard.css';
 import StudentLayout from '../layouts/StudentLayout';
 import { Card, CardContent } from '../components/ui/card';
 import { Button } from '../components/ui/button';
-import { X, Circle } from 'lucide-react';
+import { Input } from '../components/ui/input';
+import { Badge } from '../components/ui/badge';
+import { X, Circle, Search } from 'lucide-react';
 import { getDemoStudents } from '../services/dummyJsonService';
 
 const MODULES = ['React & UI', 'Data Structures', 'Python Backend'];
 const STATUSES = ['Active Pair', 'Unpaired', 'At-Risk'];
 const TONES = ['green', 'blue', 'orange'];
 
+const TONE_STYLES = {
+  green: 'bg-green-100 text-green-700',
+  blue: 'bg-blue-100 text-blue-700',
+  orange: 'bg-orange-100 text-orange-700',
+};
+
+const STATUS_STYLES = {
+  'Active Pair': 'border-green-200 bg-green-50 text-green-700',
+  Unpaired: 'border-amber-200 bg-amber-50 text-amber-700',
+  'At-Risk': 'border-red-200 bg-red-50 text-red-700',
+};
+
 const pairings = [
-  {
-    week: 'week-1',
-    date: 'Week 1',
-    partner: 'Sarah Kim',
-    initials: 'SK',
-    focus: 'Frontend architecture',
-  },
-  {
-    week: 'week-2',
-    date: 'Week 2',
-    partner: 'Samuel Otieno',
-    initials: 'SO',
-    focus: 'API integration',
-  },
-  {
-    week: 'week-3',
-    date: 'Week 3',
-    partner: 'Maya Kibet',
-    initials: 'MK',
-    focus: 'Debugging workflows',
-  },
+  { week: 'week-1', date: 'Week 1', partner: 'Sarah Kim', initials: 'SK', focus: 'Frontend architecture' },
+  { week: 'week-2', date: 'Week 2', partner: 'Samuel Otieno', initials: 'SO', focus: 'API integration' },
+  { week: 'week-3', date: 'Week 3', partner: 'Maya Kibet', initials: 'MK', focus: 'Debugging workflows' },
 ];
 
 function Dashboard() {
@@ -49,16 +44,18 @@ function Dashboard() {
     const loadStudents = async () => {
       try {
         const demoStudents = await getDemoStudents();
-        setStudents(demoStudents.map((student, index) => ({
-          ...student,
-          initials: student.name.split(' ').map((part) => part[0]).join(''),
-          module: MODULES[index % MODULES.length],
-          status: STATUSES[index % STATUSES.length],
-          score: `${student.mastery}%`,
-          change: `${index % 3 === 0 ? '+' : index % 3 === 1 ? '' : '-'}${(index % 5) + 1}%`,
-          partner: index % 3 === 0 ? 'Assigned mentor' : undefined,
-          tone: TONES[index % TONES.length],
-        })));
+        setStudents(
+          demoStudents.map((student, index) => ({
+            ...student,
+            initials: student.name.split(' ').map((part) => part[0]).join(''),
+            module: MODULES[index % MODULES.length],
+            status: STATUSES[index % STATUSES.length],
+            score: `${student.mastery}%`,
+            change: `${index % 3 === 0 ? '+' : index % 3 === 1 ? '' : '-'}${(index % 5) + 1}%`,
+            partner: index % 3 === 0 ? 'Assigned mentor' : undefined,
+            tone: TONES[index % TONES.length],
+          }))
+        );
         setStatus('succeeded');
       } catch (requestError) {
         setError(requestError.message);
@@ -142,84 +139,121 @@ function Dashboard() {
         )}
       </section>
 
-      <section className="directory-section" id="students">
-        <div className="toolbar">
-          <label className="search-field">
-            <span className="sr-only">Search</span>
-            <input
+      <section id="students">
+        <div className="flex items-center gap-3 mb-4 flex-wrap">
+          <div className="relative flex-1 min-w-[220px] max-w-sm">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+            <Input
               value={search}
               onChange={(event) => setSearch(event.target.value)}
               placeholder="Search by name or email..."
               aria-label="Search by name or email"
+              className="pl-9"
             />
-          </label>
-          <select aria-label="Filter by cohort"><option>All Cohorts</option></select>
-          <select aria-label="Filter by module"><option>All Modules</option></select>
-          <select aria-label="Filter by status"><option>Any Status</option></select>
+          </div>
+          <select aria-label="Filter by cohort" className="px-3 py-2 rounded-md border border-gray-200 text-sm text-gray-600">
+            <option>All Cohorts</option>
+          </select>
+          <select aria-label="Filter by module" className="px-3 py-2 rounded-md border border-gray-200 text-sm text-gray-600">
+            <option>All Modules</option>
+          </select>
+          <select aria-label="Filter by status" className="px-3 py-2 rounded-md border border-gray-200 text-sm text-gray-600">
+            <option>Any Status</option>
+          </select>
         </div>
 
-        <div className="directory-heading">
+        <div className="flex items-center justify-between mb-4">
           <div>
-            <h2>
-              Students <span>{students.length}</span>
+            <h2 className="text-lg font-bold text-gray-900 flex items-center gap-2">
+              Students
+              <span className="inline-flex items-center justify-center min-w-[22px] h-[22px] px-1.5 rounded-full bg-primary/10 text-primary text-xs font-bold">
+                {students.length}
+              </span>
             </h2>
-            <p>Showing students across all active cohorts</p>
-          </div>
-          <div className="view-toggle">
-            <button className="view-active" aria-label="Card view" type="button">Grid</button>
-            <button aria-label="List view" type="button">List</button>
+            <p className="text-sm text-gray-500">Showing students across all active cohorts</p>
           </div>
         </div>
 
-        {status === 'loading' && <p className="directory-message">Loading students...</p>}
-        {status === 'failed' && <p className="directory-message directory-message-error">{error}</p>}
+        {status === 'loading' && <p className="text-sm text-gray-500 py-6">Loading students...</p>}
+        {status === 'failed' && <p className="text-sm text-red-600 py-6">{error}</p>}
 
-        <div className="student-grid">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {filteredStudents.map((student) => (
-            <article className="student-card" key={student.id}>
-              <div className="student-card-top">
-                <input
-                  type="checkbox"
-                  checked={selectedStudents.includes(student.name)}
-                  onChange={() => toggleStudent(student.name)}
-                  aria-label={`Select ${student.name}`}
-                />
-                <button className="more-button" aria-label={`More options for ${student.name}`} type="button">
-                  More
-                </button>
-              </div>
-              <div className={`student-avatar avatar-${student.tone}`}>{student.initials}</div>
-              <h3>{student.name}</h3>
-              <p className="student-email">{student.email}</p>
-              <div className="student-tags">
-                <span>{student.cohort}</span>
-                <span>{student.status}</span>
-              </div>
-              <div className="score-row">
-                <div>
-                  <span className="metric-label">Focus</span>
-                  <strong>{student.module}</strong>
+            <Card key={student.id}>
+              <CardContent className="pt-5">
+                <div className="flex items-center justify-between mb-3">
+                  <input
+                    type="checkbox"
+                    checked={selectedStudents.includes(student.name)}
+                    onChange={() => toggleStudent(student.name)}
+                    aria-label={`Select ${student.name}`}
+                    className="w-3.5 h-3.5 accent-primary"
+                  />
+                  <button
+                    type="button"
+                    aria-label={`More options for ${student.name}`}
+                    className="text-gray-400 hover:text-gray-600 text-xs font-medium"
+                  >
+                    More
+                  </button>
                 </div>
-                <div className="score">
-                  <span className="metric-label">Latest Score</span>
-                  <strong>{student.score}</strong>
-                  <small className={student.change.startsWith('-') ? 'score-down' : 'score-up'}>
-                    {student.change}
-                  </small>
+
+                <div className="flex flex-col items-center text-center mb-3">
+                  <div
+                    className={`w-12 h-12 rounded-full flex items-center justify-center text-sm font-semibold mb-2 ${TONE_STYLES[student.tone]}`}
+                  >
+                    {student.initials}
+                  </div>
+                  <h3 className="font-bold text-gray-900">{student.name}</h3>
+                  <p className="text-xs text-gray-500">{student.email}</p>
                 </div>
-              </div>
-              <div className="student-card-footer">
-                {student.partner ? <span>Paired w/ {student.partner}</span> : <span className="unpaired">Unpaired</span>}
-                <button type="button">View Profile</button>
-              </div>
-            </article>
+
+                <div className="flex items-center justify-center gap-2 mb-4">
+                  <Badge variant="outline" className="border-gray-200 bg-gray-50 text-gray-600">
+                    {student.cohort}
+                  </Badge>
+                  <Badge variant="outline" className={STATUS_STYLES[student.status]}>
+                    {student.status}
+                  </Badge>
+                </div>
+
+                <div className="grid grid-cols-2 gap-3 py-3 border-t border-gray-100 text-sm">
+                  <div>
+                    <p className="text-xs text-gray-400 mb-0.5">Focus</p>
+                    <p className="font-medium text-gray-800 truncate">{student.module}</p>
+                  </div>
+                  <div className="text-right">
+                    <p className="text-xs text-gray-400 mb-0.5">Latest Score</p>
+                    <p className="font-semibold text-gray-900">
+                      {student.score}{' '}
+                      <span className={student.change.startsWith('-') ? 'text-red-600 text-xs font-semibold' : 'text-green-600 text-xs font-semibold'}>
+                        {student.change}
+                      </span>
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex items-center justify-between pt-3 border-t border-gray-100 text-sm">
+                  {student.partner ? (
+                    <span className="text-gray-500">Paired w/ {student.partner}</span>
+                  ) : (
+                    <span className="text-amber-600">Unpaired</span>
+                  )}
+                  <button type="button" className="text-primary font-medium hover:underline">
+                    View Profile
+                  </button>
+                </div>
+              </CardContent>
+            </Card>
           ))}
         </div>
 
         {visibleCount < students.length && (
-          <button className="load-more" type="button" onClick={() => setVisibleCount((count) => count + 6)}>
-            {students.length - visibleCount} <span>Load More Students</span>
-          </button>
+          <div className="text-center mt-6">
+            <Button variant="outline" onClick={() => setVisibleCount((count) => count + 6)}>
+              Load {students.length - visibleCount} More Students
+            </Button>
+          </div>
         )}
       </section>
     </StudentLayout>

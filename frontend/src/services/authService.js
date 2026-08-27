@@ -21,6 +21,15 @@ const DEMO_USERS = {
       role: 'student',
     },
   },
+  'mentor@moringapair.com': {
+    password: 'Mentor123!',
+    user: {
+      id: 'demo-mentor-1',
+      name: 'Albert Byrone',
+      email: 'mentor@moringapair.com',
+      role: 'mentor',
+    },
+  },
 };
 
 const normalizeUser = (response) => response?.user || response;

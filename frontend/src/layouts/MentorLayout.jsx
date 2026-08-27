@@ -1,20 +1,21 @@
 import { useState, useEffect } from 'react';
-import { NavLink, Link, useNavigate } from 'react-router-dom';
-import { useDispatch } from 'react-redux';
-import { LayoutDashboard, ClipboardList, History, CircleUserRound, LogOut, Menu, PanelLeftClose } from 'lucide-react';
+import { NavLink, useNavigate } from 'react-router-dom';
+import { useDispatch, useSelector } from 'react-redux';
+import { LayoutDashboard, Users, MessageSquareText, CircleUserRound, LogOut, Menu, PanelLeftClose } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import Logo from '../components/Logo';
 import { logout } from '../store/authSlice';
 
 const navItems = [
-  { to: '/dashboard', label: 'My Pairing', icon: LayoutDashboard },
-  { to: '/assessment', label: 'Assessment', icon: ClipboardList },
-  { to: '/pairing/history', label: 'Pairing History', icon: History },
+  { to: '/mentor/dashboard', label: 'Dashboard', icon: LayoutDashboard },
+  { to: '/mentor/students', label: 'My Students', icon: Users },
+  { to: '/mentor/feedback', label: 'Feedback Log', icon: MessageSquareText },
 ];
 
-export default function StudentLayout({ children, eyebrow, title, avatarInitials = 'AM' }) {
+export default function MentorLayout({ children, eyebrow, title, description }) {
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const { user } = useSelector((state) => state.auth);
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   useEffect(() => {
@@ -25,6 +26,8 @@ export default function StudentLayout({ children, eyebrow, title, avatarInitials
     window.addEventListener('mousemove', onMove);
     return () => window.removeEventListener('mousemove', onMove);
   }, []);
+
+  const initials = (user?.name || 'Mentor').split(' ').map((p) => p[0]).join('').slice(0, 2).toUpperCase();
 
   const handleLogout = () => {
     dispatch(logout());
@@ -47,18 +50,15 @@ export default function StudentLayout({ children, eyebrow, title, avatarInitials
       >
         <div>
           <div className="flex items-center justify-between px-6 py-5">
-            <Link to="/dashboard" className="flex items-center gap-2" onClick={() => setSidebarOpen(false)}>
-              <Logo />
-            </Link>
+            <Logo />
             <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => setSidebarOpen(false)}>
               <PanelLeftClose className="h-4 w-4 text-gray-400" />
             </Button>
           </div>
-
           <nav className="mt-2 px-3 space-y-1">
             {navItems.map((item) => (
               <NavLink
-                key={item.label}
+                key={item.to}
                 to={item.to}
                 onClick={() => setSidebarOpen(false)}
                 className={({ isActive }) =>
@@ -73,10 +73,9 @@ export default function StudentLayout({ children, eyebrow, title, avatarInitials
             ))}
           </nav>
         </div>
-
         <div className="p-3 space-y-1 border-t border-gray-100">
           <NavLink
-            to="/profile"
+            to="/mentor/profile"
             onClick={() => setSidebarOpen(false)}
             className={({ isActive }) =>
               `flex items-center gap-2 px-3 py-2 rounded-md text-sm font-medium ${
@@ -97,31 +96,20 @@ export default function StudentLayout({ children, eyebrow, title, avatarInitials
           </button>
         </div>
       </aside>
-
       <div className="flex min-h-screen flex-col">
         <header className="flex items-center gap-4 px-6 py-4 bg-gray-50 border-b border-gray-100">
-          <Button
-            variant="ghost"
-            size="icon"
-            className="h-9 w-9 shrink-0"
-            onClick={() => setSidebarOpen(true)}
-            aria-label="Open navigation"
-          >
+          <Button variant="ghost" size="icon" className="h-9 w-9 shrink-0" onClick={() => setSidebarOpen(true)} aria-label="Open navigation">
             <Menu className="h-5 w-5 text-gray-600" strokeWidth={1.75} />
           </Button>
-
           <div>
-            {eyebrow && (
-              <p className="text-xs font-medium uppercase tracking-wide text-primary mb-1">{eyebrow}</p>
-            )}
+            {eyebrow && <p className="text-xs font-medium uppercase tracking-wide text-primary mb-1">{eyebrow}</p>}
             <h1 className="text-2xl font-bold text-gray-900">{title}</h1>
+            {description && <p className="text-sm text-gray-500 mt-1">{description}</p>}
           </div>
-
           <div className="ml-auto w-9 h-9 rounded-full bg-primary text-primary-foreground text-sm font-semibold flex items-center justify-center">
-            {avatarInitials}
+            {initials}
           </div>
         </header>
-
         <main className="flex-1 px-8 py-6">{children}</main>
       </div>
     </div>
