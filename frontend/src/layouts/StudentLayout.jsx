@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { NavLink, Link, useNavigate } from 'react-router-dom';
+import { NavLink, useNavigate } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
 import { LayoutDashboard, ClipboardList, History, CircleUserRound, LogOut, Menu, PanelLeftClose } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -46,10 +46,16 @@ export default function StudentLayout({ children, eyebrow, title, avatarInitials
         onMouseLeave={() => setSidebarOpen(false)}
       >
         <div>
-          <div className="flex items-center justify-between px-6 py-5">
-            <Link to="/dashboard" className="flex items-center gap-2" onClick={() => setSidebarOpen(false)}>
-              <Logo />
-            </Link>
+          <div className="flex items-center justify-between px-4 py-4">
+            <div className="flex items-center gap-2.5">
+              <div className="flex h-8 w-8 items-center justify-center rounded-md bg-primary text-xs font-bold text-white">
+                S
+              </div>
+              <div>
+                <p className="text-sm font-semibold text-zinc-900">Student</p>
+                <p className="text-[11px] text-zinc-400">Learner Access</p>
+              </div>
+            </div>
             <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => setSidebarOpen(false)}>
               <PanelLeftClose className="h-4 w-4 text-gray-400" />
             </Button>
@@ -110,19 +116,25 @@ export default function StudentLayout({ children, eyebrow, title, avatarInitials
             <Menu className="h-5 w-5 text-gray-600" strokeWidth={1.75} />
           </Button>
 
-          <div>
+          <Logo />
+
+          <div className="ml-auto">
             {eyebrow && (
-              <p className="text-xs font-medium uppercase tracking-wide text-primary mb-1">{eyebrow}</p>
+              <p className="text-xs font-medium uppercase tracking-wide text-primary mb-1 text-right">{eyebrow}</p>
             )}
-            <h1 className="text-2xl font-bold text-gray-900">{title}</h1>
           </div>
 
-          <div className="ml-auto w-9 h-9 rounded-full bg-primary text-primary-foreground text-sm font-semibold flex items-center justify-center">
+          <div className="w-9 h-9 rounded-full bg-primary text-primary-foreground text-sm font-semibold flex items-center justify-center">
             {avatarInitials}
           </div>
         </header>
 
-        <main className="flex-1 px-8 py-6">{children}</main>
+        <main className="flex-1 px-8 py-6">
+          <div className="mb-6">
+            <h1 className="text-2xl font-bold text-gray-900">{title}</h1>
+          </div>
+          {children}
+        </main>
       </div>
     </div>
   );
