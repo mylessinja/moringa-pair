@@ -11,6 +11,7 @@ const DEMO_USERS = {
       email: 'admin@moringapair.com',
       role: 'admin',
     },
+    token: 'demo-admin-token',
   },
   'student@moringapair.com': {
     password: 'Student123!',
@@ -20,22 +21,25 @@ const DEMO_USERS = {
       email: 'student@moringapair.com',
       role: 'student',
     },
+    token: 'demo-student-token',
   },
 };
 
 const normalizeUser = (response) => response?.user || response;
+const normalizeToken = (response) => response?.token || response?.accessToken || null;
 
 const signUp = async (userData) => {
   const normalizedEmail = (userData.email || '').toLowerCase();
   const demoUser = DEMO_USERS[normalizedEmail];
 
   if (demoUser) {
-    return demoUser.user;
+    return { ...demoUser.user, token: demoUser.token };
   }
 
   try {
     const response = await axios.post(`${API_URL}/signup`, userData);
-    return normalizeUser(response.data);
+    const user = normalizeUser(response.data);
+    return { ...user, token: normalizeToken(response.data) || 'demo-signup-token' };
   } catch (error) {
     if (error.code === 'ERR_NETWORK' || error.message.includes('localhost:5000')) {
       return {
@@ -43,6 +47,7 @@ const signUp = async (userData) => {
         name: userData.name || 'Demo User',
         email: normalizedEmail,
         role: 'student',
+        token: 'demo-signup-token',
       };
     }
     throw error;
@@ -54,17 +59,18 @@ const login = async (credentials) => {
   const demoUser = DEMO_USERS[normalizedEmail];
 
   if (demoUser && demoUser.password === credentials.password) {
-    return demoUser.user;
+    return { ...demoUser.user, token: demoUser.token };
   }
 
   try {
     const response = await axios.post(`${API_URL}/login`, credentials);
-    return normalizeUser(response.data);
+    const user = normalizeUser(response.data);
+    return { ...user, token: normalizeToken(response.data) || 'demo-login-token' };
   } catch (error) {
     if (error.code === 'ERR_NETWORK' || error.message.includes('localhost:5000')) {
       const fallbackUser = DEMO_USERS[normalizedEmail];
       if (fallbackUser && fallbackUser.password === credentials.password) {
-        return fallbackUser.user;
+        return { ...fallbackUser.user, token: fallbackUser.token };
       }
       throw new Error('Use one of the demo role accounts shown on the login page.');
     }
