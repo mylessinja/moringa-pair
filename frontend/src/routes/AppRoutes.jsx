@@ -12,11 +12,12 @@ import CohortsPage from '../features/admin/pages/CohortsPage';
 import MentorsPage from '../features/admin/pages/MentorsPage';
 import StudentsPage from '../features/admin/pages/StudentsPage';
 import SettingsPage from '../features/admin/pages/SettingsPage';
+import LandingPage from '../pages/LandingPage';
 
 const AppRoutes = () => {
   return (
     <Routes>
-      <Route path="/" element={<Login />} />
+      <Route path="/" element={<LandingPage />} />
       <Route path="/signup" element={<SignUp />} />
       <Route path="/login" element={<Login />} />
       <Route path="/dashboard" element={<RequireAuth allowedRoles={['student']}><Dashboard /></RequireAuth>} />
