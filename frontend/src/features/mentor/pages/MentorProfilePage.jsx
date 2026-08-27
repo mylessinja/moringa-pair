@@ -6,15 +6,18 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
+import { mockMentors } from '../../admin/data/mockMentors';
+
+const mentorRecord = mockMentors.find((mentor) => mentor.name === 'Albert Byrone');
 
 const Profile = () => {
   const { user } = useSelector((state) => state.auth);
   const [saved, setSaved] = useState(false);
   const [profile, setProfile] = useState({
-    name: user?.name || 'Albert Byrone',
-    email: user?.email || 'a.byrone@moringapair.com',
-    expertise: 'React, Node.js',
-    activeCohorts: 'SE-Cohort 34, SE-Cohort 35',
+    name: user?.name || mentorRecord.name,
+    email: user?.email || mentorRecord.email,
+    expertise: mentorRecord.expertise.join(', '),
+    activeCohorts: mentorRecord.activeCohorts,
     bio: 'I like to pair with students on real code before reviewing theory — helps concepts stick faster.',
   });
 
