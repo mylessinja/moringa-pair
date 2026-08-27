@@ -16,7 +16,7 @@ const Login = () => {
   const [formError, setFormError] = useState('');
 
   const demoAccounts = {
-    admin: { email: 'admin@moringapair.com', password: 'Admin123!' },
+    mentor: { email: 'mentor@moringapair.com', password: 'Mentor123!' },
     student: { email: 'student@moringapair.com', password: 'Student123!' },
   };
 
@@ -39,6 +39,7 @@ const Login = () => {
       const loggedUser = result.payload;
       const destinations = {
         admin: '/admin/dashboard',
+        mentor: '/mentor/dashboard',
         student: '/dashboard',
       };
       navigate(destinations[loggedUser?.role] || destinations[selectedRole]);
@@ -54,8 +55,8 @@ const Login = () => {
     >
       <form onSubmit={handleSubmit} noValidate className="space-y-4">
         <div className="space-y-2">
-          <Label>Enter as</Label>
-          <div className="grid grid-cols-3 gap-2" role="group" aria-label="Choose account type">
+          <Label>Try a demo account</Label>
+          <div className="grid grid-cols-2 gap-2" role="group" aria-label="Choose account type">
             {Object.keys(demoAccounts).map((role) => (
               <button
                 key={role}
@@ -71,6 +72,7 @@ const Login = () => {
               </button>
             ))}
           </div>
+          <p className="text-xs text-gray-400">Admins: sign in with your account email and password below.</p>
         </div>
         <div className="space-y-1.5">
           <Label htmlFor="email">Email address</Label>

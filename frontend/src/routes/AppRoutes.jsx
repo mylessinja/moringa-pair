@@ -12,6 +12,10 @@ import CohortsPage from '../features/admin/pages/CohortsPage';
 import MentorsPage from '../features/admin/pages/MentorsPage';
 import StudentsPage from '../features/admin/pages/StudentsPage';
 import SettingsPage from '../features/admin/pages/SettingsPage';
+import MentorDashboardPage from '../features/mentor/pages/MentorDashboardPage';
+import MentorStudentsPage from '../features/mentor/pages/MentorStudentsPage';
+import MentorFeedbackPage from '../features/mentor/pages/MentorFeedbackPage';
+import MentorProfilePage from '../features/mentor/pages/MentorProfilePage';
 
 const AppRoutes = () => {
   return (
@@ -45,6 +49,24 @@ const AppRoutes = () => {
       <Route
         path="/admin/settings"
         element={<RequireAuth allowedRoles={['admin']}><SettingsPage /></RequireAuth>}
+      />
+
+      <Route path="/mentor" element={<Navigate to="/mentor/dashboard" replace />} />
+      <Route
+        path="/mentor/dashboard"
+        element={<RequireAuth allowedRoles={['mentor']}><MentorDashboardPage /></RequireAuth>}
+      />
+      <Route
+        path="/mentor/students"
+        element={<RequireAuth allowedRoles={['mentor']}><MentorStudentsPage /></RequireAuth>}
+      />
+      <Route
+        path="/mentor/feedback"
+        element={<RequireAuth allowedRoles={['mentor']}><MentorFeedbackPage /></RequireAuth>}
+      />
+      <Route
+        path="/mentor/profile"
+        element={<RequireAuth allowedRoles={['mentor']}><MentorProfilePage /></RequireAuth>}
       />
     </Routes>
   );
