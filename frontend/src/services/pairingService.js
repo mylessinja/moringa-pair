@@ -1,3 +1,5 @@
+import axios from 'axios';
+
 const pairingHistory = [
   {
     id: 'pair-2026-08-17',
@@ -33,6 +35,18 @@ const wait = (value) => new Promise((resolve) => {
 });
 
 const getCurrentPairing = async () => wait(pairingHistory[0]);
-const getPairingHistory = async () => wait(pairingHistory);
+const getPairingHistory = async () => {
+  const token = localStorage.getItem('moringaPairToken');
+  if (!token) return wait(pairingHistory);
+
+  const response = await axios.get('http://localhost:5000/api/pairings/history', {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  return response.data.map((pairing) => ({
+    ...pairing,
+    partnerEmail: pairing.partner_email,
+    publishedAt: pairing.published_at,
+  }));
+};
 
 export { getCurrentPairing, getPairingHistory };
