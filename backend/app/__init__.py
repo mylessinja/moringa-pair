@@ -1,29 +1,44 @@
-from flask import Flask, jsonify
-from flask_sqlalchemy import SQLAlchemy
-from flask_migrate import Migrate
-from flask_jwt_extended import JWTManager
+from flask import Flask
 from flask_cors import CORS
+from flask_jwt_extended import JWTManager
+from flask_migrate import Migrate
 
 from config import Config
-
-db = SQLAlchemy()
-migrate = Migrate()
-jwt = JWTManager()
+from models import db
 
 
-def create_app():
+def create_app(config_class=Config):
     app = Flask(__name__)
-    app.config.from_object(Config)
+    app.config.from_object(config_class)
 
+    CORS(app, resources={r"/api/*": {"origins": "*"}})
     db.init_app(app)
-    migrate.init_app(app, db)
-    jwt.init_app(app)
-    CORS(app)
+    Migrate(app, db)
+    JWTManager(app)
 
-    from app.models import User
+    from models import (  # noqa: F401
+        User,
+        MentorProfile,
+        MentorExpertise,
+        Cohort,
+        CohortMember,
+        Pairing,
+        Setting,
+    )
 
-    @app.route("/")
-    def health_check():
-        return jsonify({"message": "MoringaPair API is running!"})
+    from routes.auth import auth_bp
+    from routes.admin import admin_bp
+    from routes.mentors import mentors_bp
+    
+    app.register_blueprint(mentors_bp)
+    app.register_blueprint(auth_bp)
+    app.register_blueprint(admin_bp)
+
+    with app.app_context():
+        db.create_all()
+
+    @app.get("/api/health")
+    def health():
+        return {"status": "ok"}
 
     return app
