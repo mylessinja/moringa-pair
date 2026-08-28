@@ -25,14 +25,17 @@ def create_app(config_class=Config):
         Pairing,
         Setting,
     )
-
     from routes.auth import auth_bp
     from routes.admin import admin_bp
     from routes.mentors import mentors_bp
-    
+    from routes.pairings import pairings_bp
+    from routes.notifications import notifications_bp
+
     app.register_blueprint(mentors_bp)
     app.register_blueprint(auth_bp)
     app.register_blueprint(admin_bp)
+    app.register_blueprint(pairings_bp)
+    app.register_blueprint(notifications_bp)
 
     with app.app_context():
         db.create_all()
