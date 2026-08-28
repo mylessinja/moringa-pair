@@ -57,3 +57,56 @@ class User(db.Model):
             "created_at": self.created_at.isoformat()
             if self.created_at else None
         }
+
+
+class Pairing(db.Model):
+    __tablename__ = "pairings"
+
+    id = db.Column(db.Integer, primary_key=True)
+    student_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=False, index=True)
+    partner_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=False, index=True)
+    week = db.Column(db.Date, nullable=False, index=True)
+    cohort = db.Column(db.String(100), nullable=True)
+    focus = db.Column(db.String(150), nullable=True)
+    status = db.Column(db.String(20), nullable=False, default="active")
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+    student = db.relationship("User", foreign_keys=[student_id])
+    partner = db.relationship("User", foreign_keys=[partner_id])
+
+    def to_dict(self):
+        return {
+            "id": self.id,
+            "student_id": self.student_id,
+            "partner_id": self.partner_id,
+            "week": self.week.isoformat() if self.week else None,
+            "cohort": self.cohort,
+            "focus": self.focus,
+            "status": self.status,
+            "created_at": self.created_at.isoformat() if self.created_at else None,
+        }
+
+
+class Notification(db.Model):
+    __tablename__ = "notifications"
+
+    id = db.Column(db.Integer, primary_key=True)
+    recipient_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=False, index=True)
+    title = db.Column(db.String(150), nullable=False)
+    message = db.Column(db.Text, nullable=False)
+    notification_type = db.Column(db.String(50), nullable=False)
+    read = db.Column(db.Boolean, nullable=False, default=False)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow, index=True)
+
+    recipient = db.relationship("User", foreign_keys=[recipient_id])
+
+    def to_dict(self):
+        return {
+            "id": self.id,
+            "recipient_id": self.recipient_id,
+            "title": self.title,
+            "message": self.message,
+            "notification_type": self.notification_type,
+            "read": self.read,
+            "created_at": self.created_at.isoformat() if self.created_at else None,
+        }
