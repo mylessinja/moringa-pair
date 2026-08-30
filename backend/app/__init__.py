@@ -7,6 +7,7 @@ from config import Config
 from models import db
 
 
+
 def create_app(config_class=Config):
     app = Flask(__name__)
     app.config.from_object(config_class)
@@ -30,12 +31,14 @@ def create_app(config_class=Config):
     from routes.mentors import mentors_bp
     from routes.pairings import pairings_bp
     from routes.notifications import notifications_bp
+    from routes.feedback import feedback_bp
 
     app.register_blueprint(mentors_bp)
     app.register_blueprint(auth_bp)
     app.register_blueprint(admin_bp)
     app.register_blueprint(pairings_bp)
     app.register_blueprint(notifications_bp)
+    app.register_blueprint(feedback_bp)
 
     with app.app_context():
         db.create_all()

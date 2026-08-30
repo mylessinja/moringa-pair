@@ -8,6 +8,8 @@ from models.cohort import Cohort, CohortMember
 from models.pairing import Pairing
 from models.settings import Setting
 from models.notification import Notification
+from models.feedback import Feedback
+from models.audit_log import AuditLog
 
 __all__ = [
     "db",
