@@ -144,6 +144,124 @@ def update_mentor_status(mentor_id):
     return jsonify({"id": user.id, "status": profile.status}), 200
 
 
+VALID_ROLES = ("admin", "mentor", "student")
+VALID_STATUSES = ("active", "inactive", "suspended")
+
+
+@admin_bp.get("/users")
+@admin_required
+def list_users():
+    """List all users. Optional ?role=admin|mentor|student filter."""
+    role = request.args.get("role")
+    query = User.query
+
+    if role:
+        if role not in VALID_ROLES:
+            return jsonify({"error": f"role must be one of {list(VALID_ROLES)}"}), 400
+        query = query.filter_by(role=role)
+
+    users = query.order_by(User.created_at.desc()).all()
+    return jsonify({"users": [u.to_dict() for u in users], "total": len(users)}), 200
+
+
+@admin_bp.get("/users/<int:user_id>")
+@admin_required
+def get_user(user_id):
+    user = User.query.get(user_id)
+    if not user:
+        return jsonify({"error": "user not found"}), 404
+    return jsonify(user.to_dict()), 200
+
+
+@admin_bp.patch("/users/<int:user_id>")
+@admin_required
+def update_user(user_id):
+    """Update a user's name or email."""
+    user = User.query.get(user_id)
+    if not user:
+        return jsonify({"error": "user not found"}), 404
+
+    data = request.get_json(silent=True) or {}
+
+    if "name" in data:
+        name = (data["name"] or "").strip()
+        if not name:
+            return jsonify({"error": "name cannot be empty"}), 400
+        user.name = name
+
+    if "email" in data:
+        email = (data["email"] or "").strip().lower()
+        if not email:
+            return jsonify({"error": "email cannot be empty"}), 400
+        existing = User.query.filter(User.email == email, User.id != user.id).first()
+        if existing:
+            return jsonify({"error": "email already in use"}), 409
+        user.email = email
+
+    log_action(_current_user(), "Updated user", f"{user.name}'s details were updated")
+    db.session.commit()
+    return jsonify(user.to_dict()), 200
+
+
+@admin_bp.patch("/users/<int:user_id>/role")
+@admin_required
+def update_user_role(user_id):
+    user = User.query.get(user_id)
+    if not user:
+        return jsonify({"error": "user not found"}), 404
+
+    data = request.get_json(silent=True) or {}
+    role = data.get("role")
+    if role not in VALID_ROLES:
+        return jsonify({"error": f"role must be one of {list(VALID_ROLES)}"}), 400
+
+    old_role = user.role
+    user.role = role
+    log_action(_current_user(), "Changed user role", f"{user.name}'s role changed from {old_role} to {role}")
+    db.session.commit()
+    return jsonify(user.to_dict()), 200
+
+
+@admin_bp.patch("/users/<int:user_id>/status")
+@admin_required
+def update_user_status(user_id):
+    """Set a user's status to active, inactive, or suspended."""
+    user = User.query.get(user_id)
+    if not user:
+        return jsonify({"error": "user not found"}), 404
+
+    data = request.get_json(silent=True) or {}
+    new_status = (data.get("status") or "").strip().lower()
+    if new_status not in VALID_STATUSES:
+        return jsonify({"error": f"status must be one of {list(VALID_STATUSES)}"}), 400
+
+    if new_status != "active" and str(user.id) == str(get_jwt_identity()):
+        return jsonify({"error": "you cannot deactivate or suspend your own account"}), 400
+
+    user.status = new_status
+    log_action(_current_user(), "Changed user status", f"{user.name}'s status set to {new_status}")
+    db.session.commit()
+    return jsonify(user.to_dict()), 200
+
+
+@admin_bp.delete("/users/<int:user_id>")
+@admin_required
+def delete_user(user_id):
+    """Permanently delete a user. Prefer the status endpoint for reversible removal."""
+    user = User.query.get(user_id)
+    if not user:
+        return jsonify({"error": "user not found"}), 404
+
+    if str(user.id) == str(get_jwt_identity()):
+        return jsonify({"error": "you cannot delete your own account"}), 400
+
+    name = user.name
+    db.session.delete(user)
+    log_action(_current_user(), "Deleted user", f"{name} was permanently removed")
+    db.session.commit()
+    return jsonify({"deleted": True}), 200
+
+
 @admin_bp.get("/cohorts")
 @admin_required
 def list_cohorts():

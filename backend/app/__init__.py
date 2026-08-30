@@ -12,6 +12,9 @@ def create_app(config_class=Config):
     app = Flask(__name__)
     app.config.from_object(config_class)
 
+    import os
+    os.makedirs(app.instance_path, exist_ok=True)
+
     CORS(app, resources={r"/api/*": {"origins": "*"}})
     db.init_app(app)
     Migrate(app, db)
