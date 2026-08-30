@@ -14,7 +14,8 @@ do with that information.
 import random
 from datetime import timedelta
 
-from models import db, Pairing, CohortMember, Notification
+from models import db, Pairing, CohortMember, Notification, User, Cohort
+from services.audit_service import log_action
 
 
 DEFAULT_LOOKBACK_WEEKS = 4
@@ -76,7 +77,7 @@ def _attempt_pairing(student_ids, recent_partners):
     return pairs, repeats, leftover
 
 
-def generate_pairings(cohort_id, week_start, focus=None, lookback_weeks=DEFAULT_LOOKBACK_WEEKS):
+def generate_pairings(cohort_id, week_start, focus=None, lookback_weeks=DEFAULT_LOOKBACK_WEEKS, triggered_by=None):
     """
     Generates and persists pairings for a cohort's students for the given
     week. Raises PairingError on bad input. Returns a dict summary.
@@ -134,6 +135,14 @@ def generate_pairings(cohort_id, week_start, focus=None, lookback_weeks=DEFAULT_
                 ),
                 notification_type="pairing",
             ))
+
+    cohort = Cohort.query.get(cohort_id)
+    log_action(
+        triggered_by,
+        "Published pairing",
+        f"Generated {len(created)} pairing(s) for '{cohort.name if cohort else cohort_id}', "
+        f"week of {week_start.isoformat()}",
+    )
 
     db.session.commit()
 

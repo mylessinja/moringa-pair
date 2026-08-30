@@ -49,7 +49,7 @@ def generate():
         return jsonify({"error": "not authorized to generate pairings for this cohort"}), 403
 
     try:
-        result = generate_pairings(cohort_id, week_start, focus=focus)
+        result = generate_pairings(cohort_id, week_start, focus=focus, triggered_by=user)
     except PairingError as e:
         return jsonify({"error": str(e)}), 400
 
