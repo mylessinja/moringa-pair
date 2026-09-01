@@ -1,8 +1,8 @@
-import axios from 'axios';
+import apiClient from './apiClient';
 
-const pairingHistory = [
+const DEMO_HISTORY = [
   {
-    id: 'pair-2026-08-17',
+    id: 'pair-demo',
     week: '2026-08-17',
     partner: 'Sarah Kim',
     partnerEmail: 'sarah.kim@moringa.school',
@@ -10,43 +10,29 @@ const pairingHistory = [
     focus: 'React & UI',
     publishedAt: 'Aug 17, 2026',
   },
-  {
-    id: 'pair-2026-08-10',
-    week: '2026-08-10',
-    partner: 'David Turner',
-    partnerEmail: 'david.turner@moringa.school',
-    cohort: 'SDF-FT-05',
-    focus: 'Data Structures',
-    publishedAt: 'Aug 10, 2026',
-  },
-  {
-    id: 'pair-2026-08-03',
-    week: '2026-08-03',
-    partner: 'Maya Okafor',
-    partnerEmail: 'maya.okafor@moringa.school',
-    cohort: 'SDF-FT-05',
-    focus: 'Python Backend',
-    publishedAt: 'Aug 3, 2026',
-  },
 ];
 
-const wait = (value) => new Promise((resolve) => {
-  setTimeout(() => resolve(value), 350);
-});
+const getCurrentPairing = async () => DEMO_HISTORY[0];
 
-const getCurrentPairing = async () => wait(pairingHistory[0]);
-const getPairingHistory = async () => {
+const getPairingHistory = async (studentId) => {
   const token = localStorage.getItem('moringaPairToken');
-  if (!token) return wait(pairingHistory);
+  if (!token || !studentId) return DEMO_HISTORY;
 
-  const response = await axios.get('http://localhost:5000/api/pairings/history', {
-    headers: { Authorization: `Bearer ${token}` },
-  });
-  return response.data.map((pairing) => ({
-    ...pairing,
-    partnerEmail: pairing.partner_email,
-    publishedAt: pairing.published_at,
-  }));
+  try {
+    const { data } = await apiClient.get(`/pairings/student/${studentId}`);
+    return (data.pairings || []).map((p) => ({
+      id: p.id,
+      week: p.week_start,
+      partner: p.student_a_id === Number(studentId) ? p.student_b : p.student_a,
+      partnerEmail: null,
+      cohort: p.cohort_name || p.cohort_id,
+      focus: p.focus,
+      publishedAt: p.week_start,
+      ...p,
+    }));
+  } catch {
+    return DEMO_HISTORY;
+  }
 };
 
 export { getCurrentPairing, getPairingHistory };

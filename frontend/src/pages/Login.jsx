@@ -1,11 +1,18 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
-import { clearError, loginUser } from '../store/authSlice';
+import { clearError, loginUser, googleLoginUser } from '../store/authSlice';
 import AuthLayout from '../layouts/AuthLayout';
+import GoogleSignInButton from '../components/GoogleSignInButton';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+
+const destinations = {
+  admin: '/admin/dashboard',
+  mentor: '/mentor/dashboard',
+  student: '/dashboard',
+};
 
 const Login = () => {
   const dispatch = useDispatch();
@@ -13,6 +20,10 @@ const Login = () => {
   const { status, error } = useSelector((state) => state.auth);
   const [credentials, setCredentials] = useState({ email: '', password: '' });
   const [formError, setFormError] = useState('');
+
+  const goAfterAuth = (user) => {
+    navigate(destinations[user?.role] || '/dashboard');
+  };
 
   const handleSubmit = async (event) => {
     event.preventDefault();
@@ -24,13 +35,16 @@ const Login = () => {
     setFormError('');
     const result = await dispatch(loginUser(credentials));
     if (loginUser.fulfilled.match(result)) {
-      const loggedUser = result.payload;
-      const destinations = {
-        admin: '/admin/dashboard',
-        mentor: '/mentor/dashboard',
-        student: '/dashboard',
-      };
-      navigate(destinations[loggedUser?.role] || '/dashboard');
+      goAfterAuth(result.payload);
+    }
+  };
+
+  const handleGoogle = async (idToken) => {
+    dispatch(clearError());
+    setFormError('');
+    const result = await dispatch(googleLoginUser(idToken));
+    if (googleLoginUser.fulfilled.match(result)) {
+      goAfterAuth(result.payload);
     }
   };
 
@@ -49,7 +63,9 @@ const Login = () => {
             type="email"
             placeholder="you@example.com"
             value={credentials.email}
-            onChange={(event) => setCredentials({ ...credentials, email: event.target.value })}
+            onChange={(event) =>
+              setCredentials({ ...credentials, email: event.target.value })
+            }
           />
         </div>
 
@@ -60,7 +76,9 @@ const Login = () => {
             type="password"
             placeholder="Enter your password"
             value={credentials.password}
-            onChange={(event) => setCredentials({ ...credentials, password: event.target.value })}
+            onChange={(event) =>
+              setCredentials({ ...credentials, password: event.target.value })
+            }
           />
         </div>
 
@@ -72,6 +90,17 @@ const Login = () => {
           {status === 'loading' ? 'Signing in...' : 'Log in'}
         </Button>
       </form>
+
+      <div className="relative my-6">
+        <div className="absolute inset-0 flex items-center">
+          <span className="w-full border-t border-zinc-200" />
+        </div>
+        <div className="relative flex justify-center text-xs uppercase">
+          <span className="bg-white px-2 text-zinc-500">Or</span>
+        </div>
+      </div>
+
+      <GoogleSignInButton onCredential={handleGoogle} />
 
       <p className="text-sm text-gray-500 mt-6">
         New to MoringaPair?{' '}

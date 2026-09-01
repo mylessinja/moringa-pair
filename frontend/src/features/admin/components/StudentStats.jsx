@@ -2,12 +2,12 @@ import { Activity, GraduationCap, TrendingUp } from 'lucide-react';
 
 function StatBox({ icon, label, value }) {
   return (
-    <div className="flex-1 border border-gray-200 rounded-lg bg-white px-5 py-4 flex items-center justify-between">
+    <div className="flex-1 border border-border rounded-lg bg-card px-5 py-4 flex items-center justify-between">
       <div>
-        <p className="text-xs text-gray-500 uppercase tracking-wide mb-1">{label}</p>
-        <p className="text-2xl font-bold text-gray-900">{value}</p>
+        <p className="text-xs text-muted-foreground uppercase tracking-wide mb-1">{label}</p>
+        <p className="text-2xl font-bold text-foreground">{value}</p>
       </div>
-      <span className="text-xl text-gray-400">{icon}</span>
+      <span className="text-xl text-muted-foreground">{icon}</span>
     </div>
   );
 }

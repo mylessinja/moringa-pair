@@ -1,6 +1,7 @@
+import os
 from datetime import datetime, timezone
 
-from flask import Blueprint, jsonify, request
+from flask import Blueprint, current_app, jsonify, request
 from flask_jwt_extended import (
     create_access_token,
     get_jwt_identity,
@@ -70,6 +71,58 @@ def login():
         additional_claims={"role": user.role, "email": user.email},
     )
     return jsonify({"access_token": token, "user": user.to_dict()}), 200
+
+
+@auth_bp.post("/google")
+def google_auth():
+    data = request.get_json(silent=True) or {}
+    token = data.get("id_token") or data.get("credential")
+    if not token:
+        return jsonify({"error": "id_token is required"}), 400
+
+    client_id = current_app.config.get("GOOGLE_CLIENT_ID") or os.environ.get(
+        "GOOGLE_CLIENT_ID", ""
+    )
+    if not client_id:
+        return jsonify({"error": "Google sign-in is not configured"}), 503
+
+    try:
+        from google.oauth2 import id_token as google_id_token
+        from google.auth.transport import requests as google_requests
+
+        info = google_id_token.verify_oauth2_token(
+            token,
+            google_requests.Request(),
+            client_id,
+        )
+    except ValueError:
+        return jsonify({"error": "invalid Google token"}), 401
+    except Exception as exc:
+        return jsonify({"error": f"Google verification failed: {exc}"}), 401
+
+    email = (info.get("email") or "").lower().strip()
+    name = (info.get("name") or email.split("@")[0]).strip()
+    if not email:
+        return jsonify({"error": "Google account has no email"}), 400
+
+    user = User.query.filter_by(email=email).first()
+    if not user:
+        user = User(name=name, email=email, role="student", status="active")
+        user.set_password(os.urandom(24).hex())
+        db.session.add(user)
+        db.session.commit()
+
+    if user.status == "suspended":
+        return jsonify({"error": "account suspended"}), 403
+
+    user.last_active_at = datetime.now(timezone.utc)
+    db.session.commit()
+
+    access = create_access_token(
+        identity=str(user.id),
+        additional_claims={"role": user.role, "email": user.email},
+    )
+    return jsonify({"access_token": access, "user": user.to_dict()}), 200
 
 
 @auth_bp.get("/me")

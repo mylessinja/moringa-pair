@@ -22,25 +22,25 @@ export default function FeedbackPanel({ student, onClose, onSubmit }) {
   return (
     <div className="fixed inset-0 z-50 flex justify-end">
       <div className="absolute inset-0 bg-black/20" onClick={onClose} aria-hidden />
-      <aside className="relative z-10 h-full w-full max-w-md bg-white shadow-xl flex flex-col">
-        <div className="flex items-start justify-between px-6 py-5 border-b border-gray-100">
+      <aside className="relative z-10 h-full w-full max-w-md bg-card shadow-xl flex flex-col">
+        <div className="flex items-start justify-between px-6 py-5 border-b border-border">
           <div>
             <p className="text-xs font-medium uppercase tracking-wide text-primary mb-1">Leave feedback</p>
-            <h2 className="text-lg font-bold text-gray-900">{student.name}</h2>
-            <p className="text-sm text-gray-500">{student.cohort} · {student.email}</p>
+            <h2 className="text-lg font-bold text-foreground">{student.name}</h2>
+            <p className="text-sm text-muted-foreground">{student.cohort} · {student.email}</p>
           </div>
           <Button variant="ghost" size="icon" onClick={onClose} aria-label="Close">
             <X className="w-4 h-4" />
           </Button>
         </div>
-        <div className="px-6 py-4 border-b border-gray-100 grid grid-cols-2 gap-4 text-sm">
+        <div className="px-6 py-4 border-b border-border grid grid-cols-2 gap-4 text-sm">
           <div>
-            <p className="text-gray-500">Mastery</p>
-            <p className="font-semibold text-gray-900">{student.mastery}%</p>
+            <p className="text-muted-foreground">Mastery</p>
+            <p className="font-semibold text-foreground">{student.mastery}%</p>
           </div>
           <div>
-            <p className="text-gray-500">Focus area</p>
-            <p className="font-semibold text-gray-900">{student.focusArea}</p>
+            <p className="text-muted-foreground">Focus area</p>
+            <p className="font-semibold text-foreground">{student.focusArea}</p>
           </div>
         </div>
         <form onSubmit={handleSubmit} className="flex-1 flex flex-col px-6 py-5 space-y-4">
@@ -53,7 +53,7 @@ export default function FeedbackPanel({ student, onClose, onSubmit }) {
                   type="button"
                   onClick={() => setType(t)}
                   className={`rounded-md border px-3 py-1.5 text-xs font-medium transition-colors ${
-                    type === t ? 'border-primary bg-primary text-primary-foreground' : 'border-gray-200 text-gray-600 hover:border-primary hover:text-primary'
+                    type === t ? 'border-primary bg-primary text-primary-foreground' : 'border-border text-muted-foreground hover:border-primary hover:text-primary'
                   }`}
                 >
                   {t}

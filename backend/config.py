@@ -10,4 +10,8 @@ class Config:
         "sqlite:///" + os.path.join(BASE_DIR, "instance", "moringa_pair.db"),
     )
     SQLALCHEMY_TRACK_MODIFICATIONS = False
-    JWT_SECRET_KEY = os.environ.get("JWT_SECRET_KEY", "jwt-dev-secret-change-me")
+    JWT_SECRET_KEY = os.environ.get(
+        "JWT_SECRET_KEY",
+        "jwt-dev-secret-change-me-use-at-least-32-chars!!",
+    )
+    GOOGLE_CLIENT_ID = os.environ.get("GOOGLE_CLIENT_ID", "")
