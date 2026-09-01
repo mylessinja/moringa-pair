@@ -38,6 +38,8 @@ const navItems = [
   { to: '/admin/mentors', label: 'Mentors', icon: UserCog },
   { to: '/admin/students', label: 'Students', icon: Users },
   { to: '/admin/settings', label: 'Settings', icon: Settings },
+  { to: '/admin/pairings', label: 'Pairings', icon: FileBarChart },
+  { to: '/admin/audit-logs', label: 'Audit Logs', icon: FileBarChart },
 ]
 
 const initialNotifications = [

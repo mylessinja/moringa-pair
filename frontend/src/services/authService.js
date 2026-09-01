@@ -1,29 +1,31 @@
 import axios from 'axios';
 
-const API_URL = 'http://localhost:5000/api';
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 
-// Offline fallback only — used when the local Flask backend isn't running.
-// Matches the accounts seeded by backend/seed.py so the two stay in sync.
 const DEMO_USERS = {
   'admin@moringapair.com': {
     password: 'admin123',
-    user: { id: 'demo-admin-1', name: 'System Admin', email: 'admin@moringapair.com', role: 'admin' },
+    user: { id: 1, name: 'System Admin', email: 'admin@moringapair.com', role: 'admin', status: 'active' },
   },
   'a.byrone@moringapair.com': {
     password: 'mentor123',
-    user: { id: 'demo-mentor-1', name: 'Albert Byrone', email: 'a.byrone@moringapair.com', role: 'mentor' },
+    user: { id: 2, name: 'Albert Byrone', email: 'a.byrone@moringapair.com', role: 'mentor', status: 'active' },
   },
   'v.sinja@moringapair.com': {
     password: 'student123',
-    user: { id: 'demo-student-1', name: 'Victor Sinja', email: 'v.sinja@moringapair.com', role: 'student' },
+    user: { id: 6, name: 'Victor Sinja', email: 'v.sinja@moringapair.com', role: 'student', status: 'active' },
   },
 };
 
-const isBackendUnreachable = (error) => error.code === 'ERR_NETWORK' || !error.response;
+const isBackendUnreachable = (error) =>
+  error.code === 'ERR_NETWORK' || !error.response;
 
 const storeSession = (data) => {
   if (data?.access_token) {
     localStorage.setItem('moringaPairToken', data.access_token);
+  }
+  if (data?.user) {
+    localStorage.setItem('moringaPairUser', JSON.stringify(data.user));
   }
   return data?.user;
 };
@@ -34,32 +36,52 @@ const signUp = async (userData) => {
     return storeSession(response.data);
   } catch (error) {
     if (isBackendUnreachable(error)) {
-      return {
+      const offlineUser = {
         id: `demo-${Date.now()}`,
         name: userData.name || 'Demo User',
         email: (userData.email || '').toLowerCase(),
-        role: 'student',
+        role: userData.role || 'student',
+        status: 'active',
       };
+      localStorage.setItem('moringaPairUser', JSON.stringify(offlineUser));
+      return offlineUser;
     }
-    throw error;
+    const message =
+      error.response?.data?.error ||
+      error.response?.data?.message ||
+      'Sign up failed';
+    throw Object.assign(new Error(message), { response: error.response });
   }
 };
 
 const login = async (credentials) => {
   try {
-    const response = await axios.post(`${API_URL}/auth/login`, credentials);
+    const response = await axios.post(`${API_URL}/auth/login`, {
+      email: (credentials.email || '').trim().toLowerCase(),
+      password: credentials.password,
+    });
     return storeSession(response.data);
   } catch (error) {
     if (isBackendUnreachable(error)) {
       const normalizedEmail = (credentials.email || '').trim().toLowerCase();
       const demoUser = DEMO_USERS[normalizedEmail];
       if (demoUser && demoUser.password === credentials.password) {
+        localStorage.setItem('moringaPairUser', JSON.stringify(demoUser.user));
         return demoUser.user;
       }
-      throw new Error('Backend is not running locally, and no demo account matches those credentials.');
+      throw new Error('Backend is not running. Try admin@moringapair.com / admin123');
     }
-    throw error;
+    const message =
+      error.response?.data?.error ||
+      error.response?.data?.message ||
+      'Login failed';
+    throw Object.assign(new Error(message), { response: error.response });
   }
 };
 
-export default { signUp, login };
+const logout = () => {
+  localStorage.removeItem('moringaPairToken');
+  localStorage.removeItem('moringaPairUser');
+};
+
+export default { signUp, login, logout, googleLogin: async () => { throw new Error('Google login not configured'); }};

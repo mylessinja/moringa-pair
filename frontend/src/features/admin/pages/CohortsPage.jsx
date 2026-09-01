@@ -1,34 +1,30 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import AdminLayout from '../../../layouts/AdminLayout';
-import { Button } from '../../../components/ui/button';
+import { Button } from '@/components/ui/button';
 import CohortCard from '../components/CohortCard';
-import { getCohorts } from '../../../services/adminService';
+import CreateCohortDialog from '../components/CreateCohortDialog';
+import { adminApi } from '@/services/adminApi';
 
 const tabs = [
-  { label: 'Active', value: 'active' },
-  { label: 'Upcoming', value: 'upcoming' },
-  { label: 'Archived', value: 'archived' },
+  { id: 'active', label: 'Active' },
+  { id: 'upcoming', label: 'Upcoming' },
+  { id: 'archived', label: 'Archived' },
 ];
 
-const TRACK_COLORS = {
-  'Software Engineering': 'bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300',
-  'Data Science': 'bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-300',
-  'UX Design': 'bg-purple-100 text-purple-700 dark:bg-purple-900/40 dark:text-purple-300',
-};
-const DEFAULT_TRACK_COLOR = 'bg-muted text-muted-foreground';
-
-function toCardShape(cohort) {
+function toCard(c) {
+  const track = c.track || '';
   return {
-    id: cohort.id,
-    track: cohort.track,
-    trackColor: TRACK_COLORS[cohort.track] || DEFAULT_TRACK_COLOR,
-    name: cohort.name,
-    students: cohort.students,
-    avgMastery: cohort.avg_mastery,
-    mentors: cohort.mentors,
-    weekOfSyllabus: cohort.week_of_syllabus,
-    totalWeeks: cohort.total_weeks,
-    leadMentor: cohort.lead_mentor || 'Unassigned',
+    id: c.id,
+    name: c.name,
+    track,
+    trackColor: track.includes('Data') ? 'bg-green-100 text-green-700' : 'bg-blue-100 text-blue-700',
+    students: c.students ?? 0,
+    avgMastery: c.avg_mastery ?? c.avgMastery ?? 0,
+    mentors: c.mentors ?? 0,
+    weekOfSyllabus: c.week_of_syllabus ?? 1,
+    totalWeeks: c.total_weeks ?? 12,
+    leadMentor: c.lead_mentor || 'Unassigned',
+    status: (c.status || 'active').toLowerCase(),
   };
 }
 
@@ -36,74 +32,84 @@ export default function CohortsPage() {
   const [activeTab, setActiveTab] = useState('active');
   const [search, setSearch] = useState('');
   const [cohorts, setCohorts] = useState([]);
-  const [status, setStatus] = useState('loading');
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [dialogOpen, setDialogOpen] = useState(false);
 
-  useEffect(() => {
-    getCohorts()
-      .then((data) => {
-        setCohorts(data);
-        setStatus('succeeded');
-      })
-      .catch((err) => {
-        setError(err.response?.data?.error || 'Could not load cohorts.');
-        setStatus('failed');
-      });
+  const load = useCallback(() => {
+    setLoading(true);
+    setError('');
+    adminApi
+      .cohorts()
+      .then((data) => setCohorts((data.cohorts || []).map(toCard)))
+      .catch((err) => setError(err.message || 'Failed to load cohorts'))
+      .finally(() => setLoading(false));
   }, []);
 
-  const visibleCohorts = cohorts
-    .filter((c) => c.status === activeTab)
-    .filter((c) => c.name.toLowerCase().includes(search.toLowerCase()))
-    .map(toCardShape);
+  useEffect(() => {
+    load();
+  }, [load]);
+
+  const filtered = useMemo(() => {
+    return cohorts.filter((c) => {
+      if (c.status !== activeTab) return false;
+      if (!search.trim()) return true;
+      return c.name.toLowerCase().includes(search.toLowerCase());
+    });
+  }, [cohorts, activeTab, search]);
 
   return (
     <AdminLayout
       pageTitle="Cohorts Management"
       pageDescription="Oversee and manage active learning groups and their progress."
     >
-      <div className="flex items-center justify-between mb-4 flex-wrap gap-3">
-        <div className="flex gap-6 border-b border-border flex-1">
+      <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+        <div className="flex flex-1 gap-6 border-b border-zinc-200">
           {tabs.map((tab) => (
             <button
-              key={tab.value}
-              onClick={() => setActiveTab(tab.value)}
-              className={`pb-2 text-sm font-medium border-b-2 -mb-px ${
-                activeTab === tab.value
-                  ? 'border-primary text-primary'
-                  : 'border-transparent text-muted-foreground hover:text-foreground'
+              key={tab.id}
+              type="button"
+              onClick={() => setActiveTab(tab.id)}
+              className={`-mb-px border-b-2 pb-2 text-sm font-medium ${
+                activeTab === tab.id
+                  ? 'border-blue-600 text-blue-600'
+                  : 'border-transparent text-zinc-500'
               }`}
             >
               {tab.label}
             </button>
           ))}
         </div>
-        <div className="flex items-center gap-3">
+        <div className="flex gap-3">
           <input
-            type="text"
+            type="search"
             placeholder="Search cohorts..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-56 px-4 py-2 rounded-md border border-border text-sm"
+            className="w-56 rounded-md border px-3 py-2 text-sm"
           />
-          <Button variant="primary" icon="+">
-            Create New Cohort
-          </Button>
+          <Button onClick={() => setDialogOpen(true)}>+ Create New Cohort</Button>
         </div>
       </div>
 
-      {status === 'loading' && <p className="text-sm text-muted-foreground py-6">Loading cohorts...</p>}
-      {status === 'failed' && <p className="text-sm text-red-600 py-6">{error}</p>}
-
-      {status === 'succeeded' && (
-        <div className="grid grid-cols-2 gap-4 mt-4">
-          {visibleCohorts.length === 0 && (
-            <p className="text-sm text-muted-foreground col-span-2 py-6">No {activeTab} cohorts yet.</p>
-          )}
-          {visibleCohorts.map((cohort) => (
-            <CohortCard key={cohort.id} cohort={cohort} />
+      {error && <p className="mb-3 text-sm text-red-600">{error}</p>}
+      {loading ? (
+        <p className="text-sm text-zinc-500">Loading…</p>
+      ) : filtered.length === 0 ? (
+        <p className="text-sm text-zinc-500">No cohorts in this tab.</p>
+      ) : (
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+          {filtered.map((c) => (
+            <CohortCard key={c.id} cohort={c} />
           ))}
         </div>
       )}
+
+      <CreateCohortDialog
+        open={dialogOpen}
+        onClose={() => setDialogOpen(false)}
+        onCreated={() => load()}
+      />
     </AdminLayout>
   );
 }

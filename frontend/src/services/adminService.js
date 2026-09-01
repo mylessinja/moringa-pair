@@ -1,7 +1,5 @@
 import apiClient from './apiClient';
 
-// Wraps the /api/admin/* endpoints in backend/routes/admin.py.
-
 export async function getStudents(search = '') {
   const { data } = await apiClient.get('/admin/students', { params: search ? { search } : {} });
   return data.students;
@@ -52,7 +50,6 @@ export async function getStats() {
   return data;
 }
 
-// Generic user management (backend/routes/admin.py's /users endpoints).
 export async function getUsers(role) {
   const { data } = await apiClient.get('/admin/users', { params: role ? { role } : {} });
   return data.users;
@@ -75,5 +72,25 @@ export async function updateUserStatus(userId, status) {
 
 export async function deleteUser(userId) {
   const { data } = await apiClient.delete(`/admin/users/${userId}`);
+  return data;
+}
+
+export async function previewPairings(payload) {
+  const { data } = await apiClient.post('/pairings/preview', payload);
+  return data;
+}
+
+export async function publishPairings(payload) {
+  const { data } = await apiClient.post('/pairings/publish', payload);
+  return data;
+}
+
+export async function generatePairingsApi(payload) {
+  const { data } = await apiClient.post('/pairings/generate', payload);
+  return data;
+}
+
+export async function getCohortPairings(cohortId) {
+  const { data } = await apiClient.get(`/pairings/cohort/${cohortId}`);
   return data;
 }

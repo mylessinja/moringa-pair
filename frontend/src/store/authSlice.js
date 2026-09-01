@@ -3,7 +3,6 @@ import authService from '../services/authService';
 
 const storedUser = localStorage.getItem('moringaPairUser');
 let initialUser = null;
-
 try {
   initialUser = storedUser ? JSON.parse(storedUser) : null;
 } catch {
@@ -17,7 +16,7 @@ export const signUpUser = createAsyncThunk(
       return await authService.signUp(userData);
     } catch (err) {
       return rejectWithValue(
-        err.response?.data?.error || err.response?.data?.message || 'Sign up failed'
+        err.response?.data?.error || err.message || 'Sign up failed'
       );
     }
   }
@@ -30,7 +29,25 @@ export const loginUser = createAsyncThunk(
       return await authService.login(credentials);
     } catch (err) {
       return rejectWithValue(
-        err.response?.data?.error || err.response?.data?.message || 'Login failed'
+        err.response?.data?.error || err.message || 'Login failed'
+      );
+    }
+  }
+);
+
+// Used by Login.jsx on ft/backend-admin (Google button)
+export const googleLoginUser = createAsyncThunk(
+  'auth/googleLoginUser',
+  async (payload, { rejectWithValue }) => {
+    try {
+      if (typeof authService.googleLogin === 'function') {
+        return await authService.googleLogin(payload);
+      }
+      // Fallback if googleLogin is not implemented yet
+      throw new Error('Google login is not configured on the server.');
+    } catch (err) {
+      return rejectWithValue(
+        err.response?.data?.error || err.message || 'Google login failed'
       );
     }
   }
@@ -40,7 +57,7 @@ const authSlice = createSlice({
   name: 'auth',
   initialState: {
     user: initialUser,
-    status: 'idle', // idle | loading | succeeded | failed
+    status: 'idle',
     error: null,
   },
   reducers: {
@@ -56,33 +73,30 @@ const authSlice = createSlice({
     },
   },
   extraReducers: (builder) => {
+    const pending = (state) => {
+      state.status = 'loading';
+      state.error = null;
+    };
+    const rejected = (state, action) => {
+      state.status = 'failed';
+      state.error = action.payload;
+    };
+    const fulfilled = (state, action) => {
+      state.status = 'succeeded';
+      state.user = action.payload;
+      localStorage.setItem('moringaPairUser', JSON.stringify(action.payload));
+    };
+
     builder
-      .addCase(signUpUser.pending, (state) => {
-        state.status = 'loading';
-        state.error = null;
-      })
-      .addCase(signUpUser.fulfilled, (state, action) => {
-        state.status = 'succeeded';
-        state.user = action.payload;
-        localStorage.setItem('moringaPairUser', JSON.stringify(action.payload));
-      })
-      .addCase(signUpUser.rejected, (state, action) => {
-        state.status = 'failed';
-        state.error = action.payload;
-      })
-      .addCase(loginUser.pending, (state) => {
-        state.status = 'loading';
-        state.error = null;
-      })
-      .addCase(loginUser.fulfilled, (state, action) => {
-        state.status = 'succeeded';
-        state.user = action.payload;
-        localStorage.setItem('moringaPairUser', JSON.stringify(action.payload));
-      })
-      .addCase(loginUser.rejected, (state, action) => {
-        state.status = 'failed';
-        state.error = action.payload;
-      });
+      .addCase(signUpUser.pending, pending)
+      .addCase(signUpUser.fulfilled, fulfilled)
+      .addCase(signUpUser.rejected, rejected)
+      .addCase(loginUser.pending, pending)
+      .addCase(loginUser.fulfilled, fulfilled)
+      .addCase(loginUser.rejected, rejected)
+      .addCase(googleLoginUser.pending, pending)
+      .addCase(googleLoginUser.fulfilled, fulfilled)
+      .addCase(googleLoginUser.rejected, rejected);
   },
 });
 
