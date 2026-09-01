@@ -1,22 +1,60 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import AdminLayout from '../../../layouts/AdminLayout';
 import { Button } from '../../../components/ui/button';
 import CohortCard from '../components/CohortCard';
-import { mockCohorts } from '../data/mockCohorts';
+import { getCohorts } from '../../../services/adminService';
 
-const tabs = ['Active', 'Upcoming', 'Archived'];
+const tabs = [
+  { label: 'Active', value: 'active' },
+  { label: 'Upcoming', value: 'upcoming' },
+  { label: 'Archived', value: 'archived' },
+];
+
+const TRACK_COLORS = {
+  'Software Engineering': 'bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300',
+  'Data Science': 'bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-300',
+  'UX Design': 'bg-purple-100 text-purple-700 dark:bg-purple-900/40 dark:text-purple-300',
+};
+const DEFAULT_TRACK_COLOR = 'bg-muted text-muted-foreground';
+
+function toCardShape(cohort) {
+  return {
+    id: cohort.id,
+    track: cohort.track,
+    trackColor: TRACK_COLORS[cohort.track] || DEFAULT_TRACK_COLOR,
+    name: cohort.name,
+    students: cohort.students,
+    avgMastery: cohort.avg_mastery,
+    mentors: cohort.mentors,
+    weekOfSyllabus: cohort.week_of_syllabus,
+    totalWeeks: cohort.total_weeks,
+    leadMentor: cohort.lead_mentor || 'Unassigned',
+  };
+}
 
 export default function CohortsPage() {
-  const [activeTab, setActiveTab] = useState('Active');
+  const [activeTab, setActiveTab] = useState('active');
   const [search, setSearch] = useState('');
+  const [cohorts, setCohorts] = useState([]);
+  const [status, setStatus] = useState('loading');
+  const [error, setError] = useState('');
 
-  // TODO: replace mockCohorts with an RTK Query fetch once GET /cohorts
-  // is wired up on the frontend (the backend endpoint already exists).
-  const cohorts = mockCohorts.filter(
-    (c) =>
-      c.status === activeTab &&
-      c.name.toLowerCase().includes(search.toLowerCase())
-  );
+  useEffect(() => {
+    getCohorts()
+      .then((data) => {
+        setCohorts(data);
+        setStatus('succeeded');
+      })
+      .catch((err) => {
+        setError(err.response?.data?.error || 'Could not load cohorts.');
+        setStatus('failed');
+      });
+  }, []);
+
+  const visibleCohorts = cohorts
+    .filter((c) => c.status === activeTab)
+    .filter((c) => c.name.toLowerCase().includes(search.toLowerCase()))
+    .map(toCardShape);
 
   return (
     <AdminLayout
@@ -27,15 +65,15 @@ export default function CohortsPage() {
         <div className="flex gap-6 border-b border-border flex-1">
           {tabs.map((tab) => (
             <button
-              key={tab}
-              onClick={() => setActiveTab(tab)}
+              key={tab.value}
+              onClick={() => setActiveTab(tab.value)}
               className={`pb-2 text-sm font-medium border-b-2 -mb-px ${
-                activeTab === tab
+                activeTab === tab.value
                   ? 'border-primary text-primary'
                   : 'border-transparent text-muted-foreground hover:text-foreground'
               }`}
             >
-              {tab}
+              {tab.label}
             </button>
           ))}
         </div>
@@ -53,11 +91,19 @@ export default function CohortsPage() {
         </div>
       </div>
 
-      <div className="grid grid-cols-2 gap-4 mt-4">
-        {cohorts.map((cohort) => (
-          <CohortCard key={cohort.id} cohort={cohort} />
-        ))}
-      </div>
+      {status === 'loading' && <p className="text-sm text-muted-foreground py-6">Loading cohorts...</p>}
+      {status === 'failed' && <p className="text-sm text-red-600 py-6">{error}</p>}
+
+      {status === 'succeeded' && (
+        <div className="grid grid-cols-2 gap-4 mt-4">
+          {visibleCohorts.length === 0 && (
+            <p className="text-sm text-muted-foreground col-span-2 py-6">No {activeTab} cohorts yet.</p>
+          )}
+          {visibleCohorts.map((cohort) => (
+            <CohortCard key={cohort.id} cohort={cohort} />
+          ))}
+        </div>
+      )}
     </AdminLayout>
   );
 }
