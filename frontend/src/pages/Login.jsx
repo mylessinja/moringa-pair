@@ -65,7 +65,7 @@ const Login = () => {
         </div>
 
         {(formError || error) && (
-          <p className="text-sm text-red-600">{formError || error}</p>
+          <p className="text-sm text-red-600 dark:text-red-400">{formError || error}</p>
         )}
 
         <Button type="submit" className="w-full" disabled={status === 'loading'}>
@@ -73,7 +73,7 @@ const Login = () => {
         </Button>
       </form>
 
-      <p className="text-sm text-gray-500 mt-6">
+      <p className="text-sm text-muted-foreground mt-6">
         New to MoringaPair?{' '}
         <Link to="/signup" className="text-primary font-medium hover:underline">
           Create an account

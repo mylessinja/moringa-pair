@@ -7,8 +7,8 @@ export default function AuthLayout({ eyebrow, title, subtitle, asideQuote, child
         <div className="max-w-sm w-full mx-auto">
           <Logo className="mb-10 block" />
           <p className="text-lg font-bold uppercase tracking-wide text-primary mb-2">{eyebrow}</p>
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">{title}</h1>
-          <p className="text-sm text-gray-500 mb-8">{subtitle}</p>
+          <h1 className="text-3xl font-bold text-foreground mb-2">{title}</h1>
+          <p className="text-sm text-muted-foreground mb-8">{subtitle}</p>
           {children}
         </div>
       </div>

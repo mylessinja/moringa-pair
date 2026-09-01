@@ -4,6 +4,7 @@ import { useDispatch } from 'react-redux';
 import { LayoutDashboard, ClipboardList, History, CircleUserRound, LogOut, Menu, PanelLeftClose } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import Logo from '../components/Logo';
+import SidebarThemeToggle from '../components/SidebarThemeToggle';
 import { logout } from '../store/authSlice';
 
 const navItems = [
@@ -32,7 +33,7 @@ export default function StudentLayout({ children, eyebrow, title, avatarInitials
   };
 
   return (
-    <div className="relative min-h-screen bg-gray-50">
+    <div className="relative min-h-screen bg-gray-50 dark:bg-zinc-950">
       <div className="fixed inset-y-0 left-0 z-40 w-2" onMouseEnter={() => setSidebarOpen(true)} aria-hidden />
 
       {sidebarOpen && (
@@ -40,7 +41,7 @@ export default function StudentLayout({ children, eyebrow, title, avatarInitials
       )}
 
       <aside
-        className={`fixed inset-y-0 left-0 z-50 flex w-64 flex-col justify-between border-r border-gray-200 bg-white transition-transform duration-300 ease-out ${
+        className={`fixed inset-y-0 left-0 z-50 flex w-64 flex-col justify-between border-r border-gray-200 bg-white transition-transform duration-300 ease-out dark:border-zinc-800 dark:bg-zinc-900 ${
           sidebarOpen ? 'translate-x-0' : '-translate-x-full'
         }`}
         onMouseLeave={() => setSidebarOpen(false)}
@@ -52,12 +53,12 @@ export default function StudentLayout({ children, eyebrow, title, avatarInitials
                 S
               </div>
               <div>
-                <p className="text-sm font-semibold text-zinc-900">Student</p>
-                <p className="text-[11px] text-zinc-400">Learner Access</p>
+                <p className="text-sm font-semibold text-zinc-900 dark:text-zinc-100">Student</p>
+                <p className="text-[11px] text-zinc-400 dark:text-zinc-500">Learner Access</p>
               </div>
             </div>
             <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => setSidebarOpen(false)}>
-              <PanelLeftClose className="h-4 w-4 text-gray-400" />
+              <PanelLeftClose className="h-4 w-4 text-gray-400 dark:text-zinc-500" />
             </Button>
           </div>
 
@@ -69,7 +70,9 @@ export default function StudentLayout({ children, eyebrow, title, avatarInitials
                 onClick={() => setSidebarOpen(false)}
                 className={({ isActive }) =>
                   `flex items-center gap-2 px-3 py-2 rounded-md text-sm font-medium ${
-                    isActive ? 'bg-primary/10 text-primary font-semibold' : 'text-gray-600 hover:bg-gray-100'
+                    isActive
+                      ? 'bg-primary/10 text-primary font-semibold'
+                      : 'text-gray-600 hover:bg-gray-100 dark:text-zinc-400 dark:hover:bg-zinc-800 dark:hover:text-zinc-100'
                   }`
                 }
               >
@@ -80,23 +83,26 @@ export default function StudentLayout({ children, eyebrow, title, avatarInitials
           </nav>
         </div>
 
-        <div className="p-3 space-y-1 border-t border-gray-100">
+        <div className="p-3 space-y-1 border-t border-gray-100 dark:border-zinc-800">
           <NavLink
             to="/profile"
             onClick={() => setSidebarOpen(false)}
             className={({ isActive }) =>
               `flex items-center gap-2 px-3 py-2 rounded-md text-sm font-medium ${
-                isActive ? 'bg-primary/10 text-primary font-semibold' : 'text-gray-600 hover:bg-gray-100'
+                isActive
+                  ? 'bg-primary/10 text-primary font-semibold'
+                  : 'text-gray-600 hover:bg-gray-100 dark:text-zinc-400 dark:hover:bg-zinc-800 dark:hover:text-zinc-100'
               }`
             }
           >
             <CircleUserRound className="w-4 h-4" />
             Profile
           </NavLink>
+          <SidebarThemeToggle className="text-gray-600 dark:text-zinc-400" />
           <button
             type="button"
             onClick={handleLogout}
-            className="w-full flex items-center gap-2 px-3 py-2 rounded-md text-sm font-medium text-gray-600 hover:bg-gray-100"
+            className="w-full flex items-center gap-2 px-3 py-2 rounded-md text-sm font-medium text-gray-600 hover:bg-gray-100 dark:text-zinc-400 dark:hover:bg-zinc-800 dark:hover:text-zinc-100"
           >
             <LogOut className="w-4 h-4" />
             Log out
@@ -105,7 +111,7 @@ export default function StudentLayout({ children, eyebrow, title, avatarInitials
       </aside>
 
       <div className="flex min-h-screen flex-col">
-        <header className="flex items-center gap-4 px-6 py-4 bg-gray-50 border-b border-gray-100">
+        <header className="flex items-center gap-4 px-6 py-4 bg-gray-50 border-b border-gray-100 dark:bg-zinc-950 dark:border-zinc-800">
           <Button
             variant="ghost"
             size="icon"
@@ -113,7 +119,7 @@ export default function StudentLayout({ children, eyebrow, title, avatarInitials
             onClick={() => setSidebarOpen(true)}
             aria-label="Open navigation"
           >
-            <Menu className="h-5 w-5 text-gray-600" strokeWidth={1.75} />
+            <Menu className="h-5 w-5 text-gray-600 dark:text-zinc-400" strokeWidth={1.75} />
           </Button>
 
           <Logo />
@@ -131,7 +137,7 @@ export default function StudentLayout({ children, eyebrow, title, avatarInitials
 
         <main className="flex-1 px-8 py-6">
           <div className="mb-6">
-            <h1 className="text-2xl font-bold text-gray-900">{title}</h1>
+            <h1 className="text-2xl font-bold text-gray-900 dark:text-zinc-100">{title}</h1>
           </div>
           {children}
         </main>

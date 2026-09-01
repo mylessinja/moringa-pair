@@ -6,6 +6,7 @@ import { Input } from '@/components/ui/input'
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 import { Separator } from '@/components/ui/separator'
 import Logo from '@/components/Logo'
+import SidebarThemeToggle from '@/components/SidebarThemeToggle'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -91,7 +92,7 @@ export default function AdminLayout({ children, pageTitle, pageDescription }) {
   }
 
   return (
-    <div className="relative min-h-screen bg-[#f8f9fb]">
+    <div className="relative min-h-screen bg-[#f8f9fb] dark:bg-zinc-950">
       <div
         className="fixed inset-y-0 left-0 z-40 w-2"
         onMouseEnter={() => setSidebarOpen(true)}
@@ -107,7 +108,7 @@ export default function AdminLayout({ children, pageTitle, pageDescription }) {
       )}
 
       <aside
-        className={`fixed inset-y-0 left-0 z-50 flex w-60 flex-col border-r border-zinc-200 bg-white transition-transform duration-300 ease-out ${
+        className={`fixed inset-y-0 left-0 z-50 flex w-60 flex-col border-r border-zinc-200 bg-white transition-transform duration-300 ease-out dark:border-zinc-800 dark:bg-zinc-900 ${
           sidebarOpen ? 'translate-x-0' : '-translate-x-full'
         }`}
         onMouseLeave={() => setSidebarOpen(false)}
@@ -118,8 +119,8 @@ export default function AdminLayout({ children, pageTitle, pageDescription }) {
               M
             </div>
             <div>
-              <p className="text-sm font-semibold text-zinc-900">System Admin</p>
-              <p className="text-[11px] text-zinc-400">Institutional Access</p>
+              <p className="text-sm font-semibold text-zinc-900 dark:text-zinc-100">System Admin</p>
+              <p className="text-[11px] text-zinc-400 dark:text-zinc-500">Institutional Access</p>
             </div>
           </div>
           <Button
@@ -128,7 +129,7 @@ export default function AdminLayout({ children, pageTitle, pageDescription }) {
             className="h-8 w-8"
             onClick={() => setSidebarOpen(false)}
           >
-            <PanelLeftClose className="h-4 w-4 text-zinc-400" />
+            <PanelLeftClose className="h-4 w-4 text-zinc-400 dark:text-zinc-500" />
           </Button>
         </div>
 
@@ -144,7 +145,7 @@ export default function AdminLayout({ children, pageTitle, pageDescription }) {
                   `flex items-center gap-2.5 rounded-md px-3 py-2 text-sm font-medium ${
                     isActive
                       ? 'bg-primary/10 text-primary'
-                      : 'text-zinc-600 hover:bg-zinc-50 hover:text-zinc-900'
+                      : 'text-zinc-600 hover:bg-zinc-50 hover:text-zinc-900 dark:text-zinc-400 dark:hover:bg-zinc-800 dark:hover:text-zinc-100'
                   }`
                 }
               >
@@ -155,19 +156,20 @@ export default function AdminLayout({ children, pageTitle, pageDescription }) {
           })}
         </nav>
 
-        <div className="space-y-2 border-t border-zinc-100 p-3">
+        <div className="space-y-2 border-t border-zinc-100 p-3 dark:border-zinc-800">
           <Button className="w-full bg-primary hover:bg-primary/90" size="sm">
             <FileBarChart className="mr-2 h-3.5 w-3.5" />
             Generate Reports
           </Button>
+          <SidebarThemeToggle />
           <Button
             variant="ghost"
             size="sm"
-            className="w-full justify-start text-zinc-500"
-                    onClick={() => {
-                      dispatch(logout())
-                      navigate('/login')
-                    }}
+            className="w-full justify-start text-zinc-500 dark:text-zinc-400"
+            onClick={() => {
+              dispatch(logout())
+              navigate('/login')
+            }}
           >
             <LogOut className="mr-2 h-3.5 w-3.5" />
             Sign out
@@ -176,7 +178,7 @@ export default function AdminLayout({ children, pageTitle, pageDescription }) {
       </aside>
 
       <div className="flex min-h-screen flex-col">
-        <header className="flex h-14 items-center gap-4 border-b border-zinc-200 bg-white px-5">
+        <header className="flex h-14 items-center gap-4 border-b border-zinc-200 bg-white px-5 dark:border-zinc-800 dark:bg-zinc-900">
           <Button
             variant="ghost"
             size="icon"
@@ -184,20 +186,20 @@ export default function AdminLayout({ children, pageTitle, pageDescription }) {
             onClick={() => setSidebarOpen(true)}
             aria-label="Open navigation"
           >
-            <Menu className="h-5 w-5 text-zinc-600" strokeWidth={1.75} />
+            <Menu className="h-5 w-5 text-zinc-600 dark:text-zinc-400" strokeWidth={1.75} />
           </Button>
 
           <Logo />
 
           <div className="relative mx-auto hidden w-full max-w-sm md:block">
             <Search
-              className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-zinc-400"
+              className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-zinc-400 dark:text-zinc-500"
               strokeWidth={1.75}
             />
             <Input
               type="search"
               placeholder="Search students, mentors, cohorts…"
-              className="h-9 border-zinc-200 bg-zinc-50 pl-9 text-sm shadow-none focus-visible:ring-1 focus-visible:ring-primary/40"
+              className="h-9 border-zinc-200 bg-zinc-50 pl-9 text-sm shadow-none focus-visible:ring-1 focus-visible:ring-primary/40 dark:border-zinc-700 dark:bg-zinc-800"
             />
           </div>
 
@@ -207,7 +209,7 @@ export default function AdminLayout({ children, pageTitle, pageDescription }) {
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="relative h-9 w-9 text-zinc-600"
+                  className="relative h-9 w-9 text-zinc-600 dark:text-zinc-400"
                   aria-label="Notifications"
                 >
                   <Bell className="h-4 w-4" strokeWidth={1.75} />
@@ -219,10 +221,10 @@ export default function AdminLayout({ children, pageTitle, pageDescription }) {
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-[360px] p-0">
-                <div className="flex items-center justify-between border-b border-zinc-100 px-4 py-3">
+                <div className="flex items-center justify-between border-b border-zinc-100 px-4 py-3 dark:border-zinc-800">
                   <div>
-                    <p className="text-sm font-semibold text-zinc-900">Notifications</p>
-                    <p className="text-xs text-zinc-500">
+                    <p className="text-sm font-semibold text-zinc-900 dark:text-zinc-100">Notifications</p>
+                    <p className="text-xs text-zinc-500 dark:text-zinc-400">
                       {unreadCount === 0 ? 'You are all caught up' : `${unreadCount} unread`}
                     </p>
                   </div>
@@ -245,7 +247,7 @@ export default function AdminLayout({ children, pageTitle, pageDescription }) {
                       key={n.id}
                       type="button"
                       onClick={() => markRead(n.id)}
-                      className={`flex w-full gap-3 border-b border-zinc-50 px-4 py-3 text-left transition-colors hover:bg-zinc-50 ${
+                      className={`flex w-full gap-3 border-b border-zinc-50 px-4 py-3 text-left transition-colors hover:bg-zinc-50 dark:border-zinc-800 dark:hover:bg-zinc-800 ${
                         !n.read ? 'bg-primary/10' : ''
                       }`}
                     >
@@ -255,9 +257,9 @@ export default function AdminLayout({ children, pageTitle, pageDescription }) {
                         }`}
                       />
                       <div className="min-w-0 flex-1">
-                        <p className="text-sm font-medium text-zinc-900">{n.title}</p>
-                        <p className="mt-0.5 line-clamp-2 text-xs text-zinc-500">{n.body}</p>
-                        <p className="mt-1 text-[11px] text-zinc-400">{n.time}</p>
+                        <p className="text-sm font-medium text-zinc-900 dark:text-zinc-100">{n.title}</p>
+                        <p className="mt-0.5 line-clamp-2 text-xs text-zinc-500 dark:text-zinc-400">{n.body}</p>
+                    <p className="mt-1 text-[11px] text-zinc-400 dark:text-zinc-500">{n.time}</p>
                       </div>
                     </button>
                   ))}
@@ -266,14 +268,14 @@ export default function AdminLayout({ children, pageTitle, pageDescription }) {
               </DropdownMenuContent>
             </DropdownMenu>
 
-            <Button variant="ghost" size="icon" className="h-9 w-9 text-zinc-600" aria-label="Help">
+            <Button variant="ghost" size="icon" className="h-9 w-9 text-zinc-600 dark:text-zinc-400" aria-label="Help">
               <HelpCircle className="h-4 w-4" strokeWidth={1.75} />
             </Button>
 
             <Button
               variant="ghost"
               size="icon"
-              className="h-9 w-9 text-zinc-600"
+              className="h-9 w-9 text-zinc-600 dark:text-zinc-400"
               aria-label="Settings"
               onClick={() => navigate('/admin/settings')}
             >
@@ -284,7 +286,7 @@ export default function AdminLayout({ children, pageTitle, pageDescription }) {
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" className="ml-1 h-9 w-9 rounded-full p-0">
                   <Avatar className="h-8 w-8">
-                    <AvatarFallback className="bg-zinc-100 text-xs font-medium text-zinc-600">
+                    <AvatarFallback className="bg-zinc-100 text-xs font-medium text-zinc-600 dark:bg-zinc-800 dark:text-zinc-300">
                       AD
                     </AvatarFallback>
                   </Avatar>
@@ -312,9 +314,9 @@ export default function AdminLayout({ children, pageTitle, pageDescription }) {
 
         <main className="flex-1 px-8 py-8">
           <div className="mb-8">
-            <h1 className="text-xl font-semibold tracking-tight text-zinc-900">{pageTitle}</h1>
+            <h1 className="text-xl font-semibold tracking-tight text-zinc-900 dark:text-zinc-100">{pageTitle}</h1>
             {pageDescription && (
-              <p className="mt-1 text-sm text-zinc-500">{pageDescription}</p>
+              <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">{pageDescription}</p>
             )}
           </div>
           {children}

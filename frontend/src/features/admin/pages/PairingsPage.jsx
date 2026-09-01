@@ -90,7 +90,7 @@ export default function PairingsPage() {
           {!preview ? (
             <Card className="border-dashed">
               <CardContent className="text-center py-10">
-                <p className="text-sm text-gray-500 mb-4">
+                <p className="text-sm text-muted-foreground mb-4">
                   Generate a new weekly pairing from the active student roster
                   ({mockPairingRoster.length} students).
                 </p>
@@ -102,8 +102,8 @@ export default function PairingsPage() {
               <CardContent>
                 <div className="flex items-center justify-between mb-4">
                   <div>
-                    <h3 className="font-bold text-gray-900">Preview</h3>
-                    <p className="text-xs text-gray-500">
+                    <h3 className="font-bold text-foreground">Preview</h3>
+                    <p className="text-xs text-muted-foreground">
                       Review the pairing below. Swap members if needed before publishing.
                     </p>
                   </div>
@@ -132,7 +132,7 @@ export default function PairingsPage() {
               placeholder="Search by week or student name..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="w-72 px-4 py-2 rounded-md border border-gray-200 text-sm"
+              className="w-72 px-4 py-2 rounded-md border border-border text-sm"
             />
             <Button variant="secondary" onClick={handleExport}>
               Export CSV
@@ -144,7 +144,7 @@ export default function PairingsPage() {
               {filteredHistory.length > 0 ? (
                 <PairingHistoryTable history={filteredHistory} />
               ) : (
-                <div className="text-center py-10 text-gray-400 text-sm">
+                <div className="text-center py-10 text-muted-foreground text-sm">
                   No pairing history matches your search.
                 </div>
               )}

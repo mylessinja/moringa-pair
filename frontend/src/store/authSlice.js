@@ -17,7 +17,7 @@ export const signUpUser = createAsyncThunk(
       return await authService.signUp(userData);
     } catch (err) {
       return rejectWithValue(
-        err.response?.data?.message || 'Sign up failed'
+        err.response?.data?.error || err.response?.data?.message || 'Sign up failed'
       );
     }
   }
@@ -30,7 +30,7 @@ export const loginUser = createAsyncThunk(
       return await authService.login(credentials);
     } catch (err) {
       return rejectWithValue(
-        err.response?.data?.message || 'Login failed'
+        err.response?.data?.error || err.response?.data?.message || 'Login failed'
       );
     }
   }
@@ -52,6 +52,7 @@ const authSlice = createSlice({
       state.status = 'idle';
       state.error = null;
       localStorage.removeItem('moringaPairUser');
+      localStorage.removeItem('moringaPairToken');
     },
   },
   extraReducers: (builder) => {

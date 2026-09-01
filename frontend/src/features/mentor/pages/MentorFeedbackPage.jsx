@@ -41,8 +41,8 @@ export default function MentorFeedbackPage() {
     <MentorLayout eyebrow="Mentor" title="Feedback Log" description="Log session notes and review what you've told each student.">
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="lg:col-span-1">
-          <div className="bg-white border border-gray-200 rounded-lg p-5 sticky top-6">
-            <h2 className="font-semibold text-gray-900 mb-4">New feedback</h2>
+          <div className="bg-card border border-border rounded-lg p-5 sticky top-6">
+            <h2 className="font-semibold text-foreground mb-4">New feedback</h2>
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="space-y-1.5">
                 <Label htmlFor="student">Student</Label>
@@ -61,7 +61,7 @@ export default function MentorFeedbackPage() {
                       type="button"
                       onClick={() => setType(t)}
                       className={`rounded-md border px-3 py-1.5 text-xs font-medium transition-colors ${
-                        type === t ? 'border-primary bg-primary text-primary-foreground' : 'border-gray-200 text-gray-600 hover:border-primary hover:text-primary'
+                        type === t ? 'border-primary bg-primary text-primary-foreground' : 'border-border text-muted-foreground hover:border-primary hover:text-primary'
                       }`}
                     >
                       {t}
@@ -81,8 +81,8 @@ export default function MentorFeedbackPage() {
         </div>
         <div className="lg:col-span-2">
           <div className="flex items-center justify-between mb-4">
-            <h2 className="font-semibold text-gray-900">History</h2>
-            <select value={filterStudent} onChange={(e) => setFilterStudent(e.target.value)} className="px-3 py-2 rounded-md border border-gray-200 text-sm text-gray-600">
+            <h2 className="font-semibold text-foreground">History</h2>
+            <select value={filterStudent} onChange={(e) => setFilterStudent(e.target.value)} className="px-3 py-2 rounded-md border border-border text-sm text-muted-foreground">
               <option>All Students</option>
               {mockMentorStudents.map((s) => (
                 <option key={s.id}>{s.name}</option>
@@ -91,17 +91,17 @@ export default function MentorFeedbackPage() {
           </div>
           <div className="space-y-3">
             {visibleFeedback.map((entry) => (
-              <div key={entry.id} className="bg-white border border-gray-200 rounded-lg px-5 py-4">
+              <div key={entry.id} className="bg-card border border-border rounded-lg px-5 py-4">
                 <div className="flex items-center justify-between mb-1.5">
-                  <p className="font-medium text-gray-900">{entry.studentName}</p>
-                  <span className="text-xs text-gray-400">{entry.date}</span>
+                  <p className="font-medium text-foreground">{entry.studentName}</p>
+                  <span className="text-xs text-muted-foreground">{entry.date}</span>
                 </div>
                 <span className="inline-block mb-2 rounded-full bg-primary/10 text-primary text-[11px] font-medium px-2 py-0.5">{entry.type}</span>
-                <p className="text-sm text-gray-600">{entry.note}</p>
+                <p className="text-sm text-muted-foreground">{entry.note}</p>
               </div>
             ))}
             {visibleFeedback.length === 0 && (
-              <div className="bg-white border border-gray-200 rounded-lg px-5 py-8 text-center text-sm text-gray-500">
+              <div className="bg-card border border-border rounded-lg px-5 py-8 text-center text-sm text-muted-foreground">
                 No feedback logged for this student yet.
               </div>
             )}

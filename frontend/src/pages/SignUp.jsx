@@ -80,13 +80,13 @@ const SignUp = () => {
         <div className="space-y-1.5">
           <Label htmlFor="name">Full Name</Label>
           <Input id="name" name="name" type="text" value={formData.name} onChange={handleChange} />
-          {formErrors.name && <p className="text-sm text-red-600">{formErrors.name}</p>}
+          {formErrors.name && <p className="text-sm text-red-600 dark:text-red-400">{formErrors.name}</p>}
         </div>
 
         <div className="space-y-1.5">
           <Label htmlFor="email">Email</Label>
           <Input id="email" name="email" type="email" value={formData.email} onChange={handleChange} />
-          {formErrors.email && <p className="text-sm text-red-600">{formErrors.email}</p>}
+          {formErrors.email && <p className="text-sm text-red-600 dark:text-red-400">{formErrors.email}</p>}
         </div>
 
         <div className="space-y-1.5">
@@ -98,7 +98,7 @@ const SignUp = () => {
             value={formData.password}
             onChange={handleChange}
           />
-          {formErrors.password && <p className="text-sm text-red-600">{formErrors.password}</p>}
+          {formErrors.password && <p className="text-sm text-red-600 dark:text-red-400">{formErrors.password}</p>}
         </div>
 
         <div className="space-y-1.5">
@@ -111,19 +111,19 @@ const SignUp = () => {
             onChange={handleChange}
           />
           {formErrors.confirmPassword && (
-            <p className="text-sm text-red-600">{formErrors.confirmPassword}</p>
+            <p className="text-sm text-red-600 dark:text-red-400">{formErrors.confirmPassword}</p>
           )}
         </div>
 
         {/* This is where the "existing email" error from the backend shows */}
-        {error && <p className="text-sm text-red-600">{error}</p>}
+        {error && <p className="text-sm text-red-600 dark:text-red-400">{error}</p>}
 
         <Button type="submit" className="w-full" disabled={status === 'loading'}>
           {status === 'loading' ? 'Creating account...' : 'Sign Up'}
         </Button>
       </form>
 
-      <p className="text-sm text-gray-500 mt-6">
+      <p className="text-sm text-muted-foreground mt-6">
         Already have an account?{' '}
         <Link to="/login" className="text-primary font-medium hover:underline">
           Log in

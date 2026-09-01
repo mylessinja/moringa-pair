@@ -11,11 +11,11 @@ export default function CohortsPage() {
   const [search, setSearch] = useState('');
 
   // TODO: replace mockCohorts with an RTK Query fetch once GET /cohorts
-  // exists, and actually filter by tab once the backend tracks cohort
-  // status (Active/Upcoming/Archived isn't wired up yet — all mock data
-  // is shown regardless of the selected tab for now).
-  const cohorts = mockCohorts.filter((c) =>
-    c.name.toLowerCase().includes(search.toLowerCase())
+  // is wired up on the frontend (the backend endpoint already exists).
+  const cohorts = mockCohorts.filter(
+    (c) =>
+      c.status === activeTab &&
+      c.name.toLowerCase().includes(search.toLowerCase())
   );
 
   return (
@@ -24,7 +24,7 @@ export default function CohortsPage() {
       pageDescription="Oversee and manage active learning groups and their progress."
     >
       <div className="flex items-center justify-between mb-4 flex-wrap gap-3">
-        <div className="flex gap-6 border-b border-gray-200 flex-1">
+        <div className="flex gap-6 border-b border-border flex-1">
           {tabs.map((tab) => (
             <button
               key={tab}
@@ -32,7 +32,7 @@ export default function CohortsPage() {
               className={`pb-2 text-sm font-medium border-b-2 -mb-px ${
                 activeTab === tab
                   ? 'border-primary text-primary'
-                  : 'border-transparent text-gray-500 hover:text-gray-700'
+                  : 'border-transparent text-muted-foreground hover:text-foreground'
               }`}
             >
               {tab}
@@ -45,7 +45,7 @@ export default function CohortsPage() {
             placeholder="Search cohorts..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-56 px-4 py-2 rounded-md border border-gray-200 text-sm"
+            className="w-56 px-4 py-2 rounded-md border border-border text-sm"
           />
           <Button variant="primary" icon="+">
             Create New Cohort
