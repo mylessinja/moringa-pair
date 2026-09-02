@@ -107,4 +107,101 @@ const getPairingHistory = async () => {
   }
 };
 
-export { getCurrentPairing, getPairingHistory };
+const updatePairingStatus = async (pairingId, newStatus) => {
+  try {
+    const token = getToken();
+    if (!token) {
+      throw new Error('No authentication token');
+    }
+
+    const response = await axios.patch(
+      `${API_BASE_URL}/${pairingId}/status`,
+      { status: newStatus },
+      { headers: { Authorization: `Bearer ${token}` } }
+    );
+
+    return response.data.pairing;
+  } catch (error) {
+    console.error('Error updating pairing status:', error);
+    throw error;
+  }
+};
+
+const createPairing = async (studentId, partnerId, week, cohort = null, focus = null) => {
+  try {
+    const token = getToken();
+    if (!token) {
+      throw new Error('No authentication token');
+    }
+
+    const response = await axios.post(
+      `${API_BASE_URL}/create`,
+      {
+        student_id: studentId,
+        partner_id: partnerId,
+        week,
+        cohort,
+        focus,
+      },
+      { headers: { Authorization: `Bearer ${token}` } }
+    );
+
+    return response.data.pairing;
+  } catch (error) {
+    console.error('Error creating pairing:', error);
+    throw error;
+  }
+};
+
+const autoPairStudents = async (week, cohort = null, focus = null) => {
+  try {
+    const token = getToken();
+    if (!token) {
+      throw new Error('No authentication token');
+    }
+
+    const response = await axios.post(
+      `${API_BASE_URL}/auto-pair`,
+      { week, cohort, focus },
+      { headers: { Authorization: `Bearer ${token}` } }
+    );
+
+    return response.data;
+  } catch (error) {
+    console.error('Error auto-pairing students:', error);
+    throw error;
+  }
+};
+
+const getAllPairings = async (week = null, cohort = null) => {
+  try {
+    const token = getToken();
+    if (!token) {
+      throw new Error('No authentication token');
+    }
+
+    let url = API_BASE_URL;
+    const params = [];
+    if (week) params.push(`week=${week}`);
+    if (cohort) params.push(`cohort=${cohort}`);
+    if (params.length > 0) url += '?' + params.join('&');
+
+    const response = await axios.get(url, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching pairings:', error);
+    throw error;
+  }
+};
+
+export {
+  getCurrentPairing,
+  getPairingHistory,
+  updatePairingStatus,
+  createPairing,
+  autoPairStudents,
+  getAllPairings,
+};
