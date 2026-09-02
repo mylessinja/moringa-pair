@@ -5,6 +5,7 @@ import {
   LayoutDashboard,
   ClipboardList,
   History,
+  BookOpen,
   CircleUserRound,
   LogOut,
   Menu,
@@ -19,6 +20,7 @@ const navItems = [
   { to: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
   { to: '/pairing', label: 'My Pairing', icon: ClipboardList },
   { to: '/pairing/history', label: 'Pairing History', icon: History },
+  { to: '/resources', label: 'Resources', icon: BookOpen },
 ];
 
 function initialsFromName(name) {

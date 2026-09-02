@@ -5,6 +5,7 @@ import Profile from '../pages/profile';
 import Dashboard from '../pages/Dashboard';
 import Pairing from '../pages/Pairing';
 import PairingHistory from '../pages/PairingHistory';
+import StudentResourcesPage from '../pages/StudentResourcesPage';
 import PairingsPage from '../features/admin/pages/PairingsPage';
 import AuditLogsPage from '../features/admin/pages/AuditLogsPage';
 import Assessment from '../pages/Assessment';
@@ -56,6 +57,14 @@ const AppRoutes = () => {
         element={
           <RequireAuth allowedRoles={['student']}>
             <PairingHistory />
+          </RequireAuth>
+        }
+      />
+      <Route
+        path="/resources"
+        element={
+          <RequireAuth allowedRoles={['student']}>
+            <StudentResourcesPage />
           </RequireAuth>
         }
       />
