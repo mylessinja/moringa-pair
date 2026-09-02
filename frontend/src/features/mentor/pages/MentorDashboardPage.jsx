@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Users, TrendingUp, AlertCircle, MessageSquareText } from 'lucide-react';
 import MentorLayout from '../../../layouts/MentorLayout';
@@ -6,19 +6,54 @@ import StatCard from '../../admin/components/StatCard';
 import ProgressBar from '../../admin/components/ProgressBar';
 import { Button } from '@/components/ui/button';
 import FeedbackPanel from '../components/FeedbackPanel';
-import { mockMentorStudents } from '../data/mockMentorStudents';
-import { addFeedback } from '../../../store/mentorSlice';
+import { getMyStudents } from '../../../services/mentorService';
+import { fetchMyFeedback, submitFeedback } from '../../../store/mentorSlice';
+
+function formatDate(isoString) {
+  if (!isoString) return '';
+  const date = new Date(isoString);
+  return date.toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
+}
 
 export default function MentorDashboardPage() {
   const dispatch = useDispatch();
   const { user } = useSelector((state) => state.auth);
   const feedback = useSelector((state) => state.mentor.feedback);
-  const [students] = useState(mockMentorStudents);
+  const feedbackStatus = useSelector((state) => state.mentor.status);
+
+  const [students, setStudents] = useState([]);
+  const [studentsStatus, setStudentsStatus] = useState('loading');
+  const [studentsError, setStudentsError] = useState(null);
   const [activeStudent, setActiveStudent] = useState(null);
+
+  useEffect(() => {
+    dispatch(fetchMyFeedback());
+
+    let cancelled = false;
+    setStudentsStatus('loading');
+    getMyStudents()
+      .then((data) => {
+        if (!cancelled) {
+          setStudents(data);
+          setStudentsStatus('succeeded');
+        }
+      })
+      .catch((err) => {
+        if (!cancelled) {
+          setStudentsError(err.response?.data?.error || err.message || 'Could not load students');
+          setStudentsStatus('failed');
+        }
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [dispatch]);
 
   const stats = useMemo(() => {
     const total = students.length;
-    const avgMastery = Math.round(students.reduce((sum, s) => sum + s.mastery, 0) / (total || 1));
+    const avgMastery = total
+      ? Math.round(students.reduce((sum, s) => sum + s.mastery, 0) / total)
+      : 0;
     const needsAttention = students.filter((s) => s.status === 'Needs check-in').length;
     return { total, avgMastery, needsAttention, sessionsThisWeek: feedback.length };
   }, [students, feedback]);
@@ -28,16 +63,10 @@ export default function MentorDashboardPage() {
 
   const handleFeedbackSubmit = ({ type, note }) => {
     dispatch(
-      addFeedback({
-        id: Date.now(),
-        studentId: activeStudent.id,
-        studentName: activeStudent.name,
-        type,
-        note,
-        date: 'Just now',
-      })
-    );
-    setActiveStudent(null);
+      submitFeedback({ studentId: activeStudent.id, sessionType: type, note })
+    ).then((action) => {
+      if (!action.error) setActiveStudent(null);
+    });
   };
 
   return (
@@ -46,6 +75,12 @@ export default function MentorDashboardPage() {
       title={`Welcome back${user?.name ? `, ${user.name.split(' ')[0]}` : ''}`}
       description="Here's how your students are doing this week."
     >
+      {studentsStatus === 'failed' && (
+        <div className="mb-4 rounded-md border border-red-200 bg-red-50 dark:bg-red-500/10 dark:border-red-900 px-4 py-3 text-sm text-red-700 dark:text-red-400">
+          {studentsError}
+        </div>
+      )}
+
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
         <StatCard icon={<Users className="w-4 h-4" />} iconBg="bg-blue-100 dark:bg-blue-500/15 text-blue-700 dark:text-blue-400" label="Assigned Students" value={stats.total} />
         <StatCard icon={<TrendingUp className="w-4 h-4" />} iconBg="bg-green-100 dark:bg-green-500/15 text-green-700 dark:text-green-400" label="Avg. Mastery" value={`${stats.avgMastery}%`} />
@@ -58,13 +93,18 @@ export default function MentorDashboardPage() {
             <h2 className="font-semibold text-foreground">Students needing attention</h2>
             <p className="text-sm text-muted-foreground">Lower mastery or inactive recently.</p>
           </div>
-          <div className="divide-y divide-gray-100">
-            {attentionList.length === 0 && <p className="px-5 py-6 text-sm text-muted-foreground">Everyone's on track — nice work.</p>}
+          <div className="divide-y divide-border">
+            {studentsStatus === 'loading' && (
+              <p className="px-5 py-6 text-sm text-muted-foreground">Loading students…</p>
+            )}
+            {studentsStatus === 'succeeded' && attentionList.length === 0 && (
+              <p className="px-5 py-6 text-sm text-muted-foreground">Everyone's on track — nice work.</p>
+            )}
             {attentionList.map((student) => (
               <div key={student.id} className="flex items-center justify-between px-5 py-4 gap-4">
                 <div className="min-w-0">
                   <p className="font-medium text-foreground truncate">{student.name}</p>
-                  <p className="text-xs text-muted-foreground">{student.cohort} · {student.lastActive}</p>
+                  <p className="text-xs text-muted-foreground">{student.cohort} · {student.lastActive || 'No activity yet'}</p>
                   <div className="mt-2">
                     <ProgressBar value={student.mastery} />
                   </div>
@@ -81,14 +121,20 @@ export default function MentorDashboardPage() {
             <h2 className="font-semibold text-foreground">Recent feedback</h2>
             <p className="text-sm text-muted-foreground">Your latest notes across students.</p>
           </div>
-          <div className="divide-y divide-gray-100">
+          <div className="divide-y divide-border">
+            {feedbackStatus === 'loading' && (
+              <p className="px-5 py-6 text-sm text-muted-foreground">Loading feedback…</p>
+            )}
+            {feedbackStatus === 'succeeded' && recentFeedback.length === 0 && (
+              <p className="px-5 py-6 text-sm text-muted-foreground">No feedback logged yet.</p>
+            )}
             {recentFeedback.map((entry) => (
               <div key={entry.id} className="px-5 py-4">
                 <div className="flex items-center justify-between mb-1">
-                  <p className="font-medium text-foreground">{entry.studentName}</p>
-                  <span className="text-xs text-muted-foreground">{entry.date}</span>
+                  <p className="font-medium text-foreground">{entry.student_name}</p>
+                  <span className="text-xs text-muted-foreground">{formatDate(entry.created_at)}</span>
                 </div>
-                <span className="inline-block mb-1.5 rounded-full bg-primary/10 text-primary text-[11px] font-medium px-2 py-0.5">{entry.type}</span>
+                <span className="inline-block mb-1.5 rounded-full bg-primary/10 text-primary text-[11px] font-medium px-2 py-0.5">{entry.session_type}</span>
                 <p className="text-sm text-muted-foreground line-clamp-2">{entry.note}</p>
               </div>
             ))}

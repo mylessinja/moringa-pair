@@ -3,7 +3,7 @@ import AdminLayout from '../../../layouts/AdminLayout';
 import { Button } from '@/components/ui/button';
 import CohortCard from '../components/CohortCard';
 import CreateCohortDialog from '../components/CreateCohortDialog';
-import { adminApi } from '@/services/adminApi';
+import { getCohorts } from '../../../services/adminService';
 
 const tabs = [
   { id: 'active', label: 'Active' },
@@ -17,7 +17,7 @@ function toCard(c) {
     id: c.id,
     name: c.name,
     track,
-    trackColor: track.includes('Data') ? 'bg-green-100 text-green-700' : 'bg-blue-100 text-blue-700',
+    trackColor: track.includes('Data') ? 'bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-300' : 'bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300',
     students: c.students ?? 0,
     avgMastery: c.avg_mastery ?? c.avgMastery ?? 0,
     mentors: c.mentors ?? 0,
@@ -39,10 +39,9 @@ export default function CohortsPage() {
   const load = useCallback(() => {
     setLoading(true);
     setError('');
-    adminApi
-      .cohorts()
-      .then((data) => setCohorts((data.cohorts || []).map(toCard)))
-      .catch((err) => setError(err.message || 'Failed to load cohorts'))
+    getCohorts()
+      .then((data) => setCohorts((data || []).map(toCard)))
+      .catch((err) => setError(err.response?.data?.error || err.message || 'Failed to load cohorts'))
       .finally(() => setLoading(false));
   }, []);
 
@@ -64,7 +63,7 @@ export default function CohortsPage() {
       pageDescription="Oversee and manage active learning groups and their progress."
     >
       <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
-        <div className="flex flex-1 gap-6 border-b border-zinc-200">
+        <div className="flex flex-1 gap-6 border-b border-border">
           {tabs.map((tab) => (
             <button
               key={tab.id}
@@ -72,8 +71,8 @@ export default function CohortsPage() {
               onClick={() => setActiveTab(tab.id)}
               className={`-mb-px border-b-2 pb-2 text-sm font-medium ${
                 activeTab === tab.id
-                  ? 'border-blue-600 text-blue-600'
-                  : 'border-transparent text-zinc-500'
+                  ? 'border-primary text-primary'
+                  : 'border-transparent text-muted-foreground hover:text-foreground'
               }`}
             >
               {tab.label}
@@ -86,7 +85,7 @@ export default function CohortsPage() {
             placeholder="Search cohorts..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-56 rounded-md border px-3 py-2 text-sm"
+            className="w-56 rounded-md border border-border px-3 py-2 text-sm"
           />
           <Button onClick={() => setDialogOpen(true)}>+ Create New Cohort</Button>
         </div>
@@ -94,9 +93,9 @@ export default function CohortsPage() {
 
       {error && <p className="mb-3 text-sm text-red-600">{error}</p>}
       {loading ? (
-        <p className="text-sm text-zinc-500">Loading…</p>
+        <p className="text-sm text-muted-foreground">Loading…</p>
       ) : filtered.length === 0 ? (
-        <p className="text-sm text-zinc-500">No cohorts in this tab.</p>
+        <p className="text-sm text-muted-foreground">No cohorts in this tab.</p>
       ) : (
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
           {filtered.map((c) => (

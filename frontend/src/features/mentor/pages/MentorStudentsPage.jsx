@@ -1,12 +1,12 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useDispatch } from 'react-redux';
 import MentorLayout from '../../../layouts/MentorLayout';
 import ProgressBar from '../../admin/components/ProgressBar';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import FeedbackPanel from '../components/FeedbackPanel';
-import { mockMentorStudents } from '../data/mockMentorStudents';
-import { addFeedback } from '../../../store/mentorSlice';
+import { getMyStudents } from '../../../services/mentorService';
+import { submitFeedback } from '../../../store/mentorSlice';
 
 function initials(name) {
   return name.split(' ').map((p) => p[0]).join('').slice(0, 2).toUpperCase();
@@ -14,12 +14,38 @@ function initials(name) {
 
 export default function MentorStudentsPage() {
   const dispatch = useDispatch();
-  const [students] = useState(mockMentorStudents);
+  const [students, setStudents] = useState([]);
+  const [status, setStatus] = useState('loading');
+  const [error, setError] = useState(null);
   const [search, setSearch] = useState('');
   const [cohortFilter, setCohortFilter] = useState('All Cohorts');
   const [activeStudent, setActiveStudent] = useState(null);
 
-  const cohorts = useMemo(() => ['All Cohorts', ...new Set(students.map((s) => s.cohort))], [students]);
+  useEffect(() => {
+    let cancelled = false;
+    setStatus('loading');
+    getMyStudents()
+      .then((data) => {
+        if (!cancelled) {
+          setStudents(data);
+          setStatus('succeeded');
+        }
+      })
+      .catch((err) => {
+        if (!cancelled) {
+          setError(err.response?.data?.error || err.message || 'Could not load students');
+          setStatus('failed');
+        }
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  const cohorts = useMemo(
+    () => ['All Cohorts', ...new Set(students.map((s) => s.cohort))],
+    [students]
+  );
 
   const visibleStudents = students.filter((s) => {
     const matchesSearch = s.name.toLowerCase().includes(search.toLowerCase());
@@ -29,22 +55,22 @@ export default function MentorStudentsPage() {
 
   const handleFeedbackSubmit = ({ type, note }) => {
     dispatch(
-      addFeedback({
-        id: Date.now(),
-        studentId: activeStudent.id,
-        studentName: activeStudent.name,
-        type,
-        note,
-        date: 'Just now',
-      })
-    );
-    setActiveStudent(null);
+      submitFeedback({ studentId: activeStudent.id, sessionType: type, note })
+    ).then((action) => {
+      if (!action.error) setActiveStudent(null);
+    });
   };
 
   return (
     <MentorLayout eyebrow="Mentor" title="My Students" description="Everyone assigned to you across your active cohorts.">
+      {status === 'failed' && (
+        <div className="mb-4 rounded-md border border-red-200 bg-red-50 dark:bg-red-500/10 dark:border-red-900 px-4 py-3 text-sm text-red-700 dark:text-red-400">
+          {error}
+        </div>
+      )}
+
       <div className="flex items-center gap-3 mb-4 flex-wrap">
-        <select value={cohortFilter} onChange={(e) => setCohortFilter(e.target.value)} className="px-3 py-2 rounded-md border border-border text-sm text-muted-foreground">
+        <select value={cohortFilter} onChange={(e) => setCohortFilter(e.target.value)} className="px-3 py-2 rounded-md border border-border bg-background text-sm text-muted-foreground">
           {cohorts.map((c) => (
             <option key={c}>{c}</option>
           ))}
@@ -54,7 +80,7 @@ export default function MentorStudentsPage() {
           placeholder="Search students by name..."
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          className="ml-auto w-72 px-4 py-2 rounded-md border border-border text-sm"
+          className="ml-auto w-72 px-4 py-2 rounded-md border border-border bg-background text-sm text-foreground placeholder:text-muted-foreground"
         />
       </div>
       <div className="bg-card border border-border rounded-lg px-4">
@@ -71,11 +97,18 @@ export default function MentorStudentsPage() {
             </tr>
           </thead>
           <tbody>
-            {visibleStudents.map((student) => (
+            {status === 'loading' && (
+              <tr>
+                <td colSpan={7} className="py-8 text-center text-muted-foreground">
+                  Loading students…
+                </td>
+              </tr>
+            )}
+            {status === 'succeeded' && visibleStudents.map((student) => (
               <tr key={student.id} className="border-b border-border">
                 <td className="py-3">
                   <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 rounded-full bg-gray-200 dark:bg-zinc-700 dark:bg-zinc-700 flex items-center justify-center text-xs font-semibold text-muted-foreground">{initials(student.name)}</div>
+                    <div className="w-8 h-8 rounded-full bg-gray-200 dark:bg-zinc-700 flex items-center justify-center text-xs font-semibold text-muted-foreground">{initials(student.name)}</div>
                     <div>
                       <p className="font-medium text-foreground">{student.name}</p>
                       <p className="text-muted-foreground text-xs">{student.email}</p>
@@ -92,7 +125,7 @@ export default function MentorStudentsPage() {
                     {student.status}
                   </Badge>
                 </td>
-                <td className="py-3 text-muted-foreground">{student.lastActive}</td>
+                <td className="py-3 text-muted-foreground">{student.lastActive || '—'}</td>
                 <td className="py-3">
                   <Button size="sm" variant="secondary" onClick={() => setActiveStudent(student)}>
                     Leave feedback
@@ -100,7 +133,7 @@ export default function MentorStudentsPage() {
                 </td>
               </tr>
             ))}
-            {visibleStudents.length === 0 && (
+            {status === 'succeeded' && visibleStudents.length === 0 && (
               <tr>
                 <td colSpan={7} className="py-8 text-center text-muted-foreground">
                   No students match that search.
