@@ -5,6 +5,8 @@ import Profile from '../pages/profile';
 import Dashboard from '../pages/Dashboard';
 import Pairing from '../pages/Pairing';
 import PairingHistory from '../pages/PairingHistory';
+import PairingsPage from '../features/admin/pages/PairingsPage';
+import AuditLogsPage from '../features/admin/pages/AuditLogsPage';
 import Assessment from '../pages/Assessment';
 import RequireAuth from './RequireAuth';
 import DashboardPage from '../features/admin/pages/DashboardPage';
@@ -68,6 +70,14 @@ const AppRoutes = () => {
       <Route
         path="/mentor/profile"
         element={<RequireAuth allowedRoles={['mentor']}><MentorProfilePage /></RequireAuth>}
+      />
+      <Route
+        path="/admin/pairings"
+        element={<RequireAuth allowedRoles={['admin']}><PairingsPage /></RequireAuth>}
+      />
+      <Route
+        path="/admin/audit-logs"
+        element={<RequireAuth allowedRoles={['admin']}><AuditLogsPage /></RequireAuth>}
       />
     </Routes>
   );

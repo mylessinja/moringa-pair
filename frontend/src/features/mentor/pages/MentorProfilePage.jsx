@@ -35,8 +35,8 @@ const Profile = () => {
           <div className="flex items-center gap-4 mb-6">
             <span className="w-14 h-14 rounded-full bg-primary/10 text-primary flex items-center justify-center text-lg font-semibold">{initials}</span>
             <div>
-              <h2 className="text-lg font-bold text-gray-900">{profile.name}</h2>
-              <p className="text-sm text-gray-500">{profile.activeCohorts} · Mentor</p>
+              <h2 className="text-lg font-bold text-foreground">{profile.name}</h2>
+              <p className="text-sm text-muted-foreground">{profile.activeCohorts} · Mentor</p>
             </div>
           </div>
           <form
@@ -69,7 +69,7 @@ const Profile = () => {
               <Textarea id="bio" name="bio" value={profile.bio} onChange={update} className="min-h-[100px]" />
             </div>
             <div className="flex items-center justify-between pt-2">
-              <span className="text-xs text-gray-500">{saved ? 'Profile details saved.' : 'Students see this on their pairing page.'}</span>
+              <span className="text-xs text-muted-foreground">{saved ? 'Profile details saved.' : 'Students see this on their pairing page.'}</span>
               <Button type="submit">Save changes</Button>
             </div>
           </form>

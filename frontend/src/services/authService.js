@@ -1,91 +1,87 @@
 import axios from 'axios';
 
-const API_URL = 'http://localhost:5000/api/auth';
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 
 const DEMO_USERS = {
   'admin@moringapair.com': {
-    password: 'Admin123!',
-    user: {
-      id: 'demo-admin-1',
-      name: 'Admin User',
-      email: 'admin@moringapair.com',
-      role: 'admin',
-    },
-    token: 'demo-admin-token',
+    password: 'admin123',
+    user: { id: 1, name: 'System Admin', email: 'admin@moringapair.com', role: 'admin', status: 'active' },
   },
-  'student@moringapair.com': {
-    password: 'Student123!',
-    user: {
-      id: 'demo-student-1',
-      name: 'Student User',
-      email: 'student@moringapair.com',
-      role: 'student',
-    },
-    token: 'demo-student-token',
+  'a.byrone@moringapair.com': {
+    password: 'mentor123',
+    user: { id: 2, name: 'Albert Byrone', email: 'a.byrone@moringapair.com', role: 'mentor', status: 'active' },
   },
-  'mentor@moringapair.com': {
-    password: 'Mentor123!',
-    user: {
-      id: 'demo-mentor-1',
-      name: 'Albert Byrone',
-      email: 'mentor@moringapair.com',
-      role: 'mentor',
-    },
-    token: 'demo-mentor-token',
+  'v.sinja@moringapair.com': {
+    password: 'student123',
+    user: { id: 6, name: 'Victor Sinja', email: 'v.sinja@moringapair.com', role: 'student', status: 'active' },
   },
 };
 
-const normalizeUser = (response) => response?.user || response;
-const normalizeToken = (response) => response?.token || response?.accessToken || null;
+const isBackendUnreachable = (error) =>
+  error.code === 'ERR_NETWORK' || !error.response;
+
+const storeSession = (data) => {
+  if (data?.access_token) {
+    localStorage.setItem('moringaPairToken', data.access_token);
+  }
+  if (data?.user) {
+    localStorage.setItem('moringaPairUser', JSON.stringify(data.user));
+  }
+  return data?.user;
+};
 
 const signUp = async (userData) => {
-  const normalizedEmail = (userData.email || '').toLowerCase();
-  const demoUser = DEMO_USERS[normalizedEmail];
-
-  if (demoUser) {
-    return { ...demoUser.user, token: demoUser.token };
-  }
-
   try {
-    const response = await axios.post(`${API_URL}/signup`, userData);
-    const user = normalizeUser(response.data);
-    return { ...user, token: normalizeToken(response.data) || 'demo-signup-token' };
+    const response = await axios.post(`${API_URL}/auth/signup`, userData);
+    return storeSession(response.data);
   } catch (error) {
-    if (error.code === 'ERR_NETWORK' || error.message.includes('localhost:5000')) {
-      return {
+    if (isBackendUnreachable(error)) {
+      const offlineUser = {
         id: `demo-${Date.now()}`,
         name: userData.name || 'Demo User',
-        email: normalizedEmail,
-        role: 'student',
-        token: 'demo-signup-token',
+        email: (userData.email || '').toLowerCase(),
+        role: userData.role || 'student',
+        status: 'active',
       };
+      localStorage.setItem('moringaPairUser', JSON.stringify(offlineUser));
+      return offlineUser;
     }
-    throw error;
+    const message =
+      error.response?.data?.error ||
+      error.response?.data?.message ||
+      'Sign up failed';
+    throw Object.assign(new Error(message), { response: error.response });
   }
 };
 
 const login = async (credentials) => {
-  const normalizedEmail = (credentials.email || '').trim().toLowerCase();
-  const demoUser = DEMO_USERS[normalizedEmail];
-
-  if (demoUser && demoUser.password === credentials.password) {
-    return { ...demoUser.user, token: demoUser.token };
-  }
-
   try {
-    const response = await axios.post(`${API_URL}/login`, credentials);
-    const user = normalizeUser(response.data);
-    return { ...user, token: normalizeToken(response.data) || 'demo-login-token' };
+    const response = await axios.post(`${API_URL}/auth/login`, {
+      email: (credentials.email || '').trim().toLowerCase(),
+      password: credentials.password,
+    });
+    return storeSession(response.data);
   } catch (error) {
-    if (error.code === 'ERR_NETWORK' || error.message.includes('localhost:5000')) {
-      const fallbackUser = DEMO_USERS[normalizedEmail];
-      if (fallbackUser && fallbackUser.password === credentials.password) {
-        return { ...fallbackUser.user, token: fallbackUser.token };
+    if (isBackendUnreachable(error)) {
+      const normalizedEmail = (credentials.email || '').trim().toLowerCase();
+      const demoUser = DEMO_USERS[normalizedEmail];
+      if (demoUser && demoUser.password === credentials.password) {
+        localStorage.setItem('moringaPairUser', JSON.stringify(demoUser.user));
+        return demoUser.user;
       }
-      throw new Error('Use one of the demo role accounts shown on the login page.');
+      throw new Error('Backend is not running. Try admin@moringapair.com / admin123');
     }
-    throw error;
+    const message =
+      error.response?.data?.error ||
+      error.response?.data?.message ||
+      'Login failed';
+    throw Object.assign(new Error(message), { response: error.response });
   }
 };
 
-export default { signUp, login };
+const logout = () => {
+  localStorage.removeItem('moringaPairToken');
+  localStorage.removeItem('moringaPairUser');
+};
+
+export default { signUp, login, logout, googleLogin: async () => { throw new Error('Google login not configured'); }};

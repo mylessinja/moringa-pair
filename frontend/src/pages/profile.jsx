@@ -36,8 +36,8 @@ const Profile = () => {
               {initials}
             </span>
             <div>
-              <h2 className="text-lg font-bold text-gray-900">{profile.name}</h2>
-              <p className="text-sm text-gray-500">{profile.cohort} · Student</p>
+              <h2 className="text-lg font-bold text-foreground">{profile.name}</h2>
+              <p className="text-sm text-muted-foreground">{profile.cohort} · Student</p>
             </div>
           </div>
 
@@ -95,7 +95,7 @@ const Profile = () => {
             </div>
 
             <div className="flex items-center justify-between pt-2">
-              <span className="text-xs text-gray-500">
+              <span className="text-xs text-muted-foreground">
                 {saved ? 'Profile details saved.' : 'These details help your TM make thoughtful pairings.'}
               </span>
               <Button type="submit">Save changes</Button>

@@ -1,11 +1,18 @@
 import { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate, Link } from 'react-router-dom';
-import { signUpUser, clearError } from '../store/authSlice';
+import { signUpUser, googleLoginUser, clearError } from '../store/authSlice';
 import AuthLayout from '../layouts/AuthLayout';
+import GoogleSignInButton from '../components/GoogleSignInButton';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+
+const destinations = {
+  admin: '/admin/dashboard',
+  mentor: '/mentor/dashboard',
+  student: '/dashboard',
+};
 
 const SignUp = () => {
   const dispatch = useDispatch();
@@ -27,30 +34,23 @@ const SignUp = () => {
   const validate = () => {
     const errors = {};
     if (!formData.name.trim()) errors.name = 'Name is required';
-
-    if (!formData.email.trim()) {
-      errors.email = 'Email is required';
-    } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
-      errors.email = 'Enter a valid email address';
-    }
-
-    if (!formData.password) {
-      errors.password = 'Password is required';
-    } else if (formData.password.length < 6) {
+    if (!formData.email.trim()) errors.email = 'Email is required';
+    else if (!/\S+@\S+\.\S+/.test(formData.email)) errors.email = 'Enter a valid email';
+    if (!formData.password) errors.password = 'Password is required';
+    else if (formData.password.length < 6)
       errors.password = 'Password must be at least 6 characters';
-    }
-
-    if (formData.confirmPassword !== formData.password) {
+    if (formData.confirmPassword !== formData.password)
       errors.confirmPassword = 'Passwords do not match';
-    }
-
     return errors;
+  };
+
+  const goAfterAuth = (user) => {
+    navigate(destinations[user?.role] || '/dashboard');
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     dispatch(clearError());
-
     const errors = validate();
     setFormErrors(errors);
     if (Object.keys(errors).length > 0) return;
@@ -62,11 +62,17 @@ const SignUp = () => {
         password: formData.password,
       })
     );
-
     if (signUpUser.fulfilled.match(result)) {
-      navigate('/dashboard');
+      goAfterAuth(result.payload);
     }
-    // if rejected, `error` from the slice will already show below
+  };
+
+  const handleGoogle = async (idToken) => {
+    dispatch(clearError());
+    const result = await dispatch(googleLoginUser(idToken));
+    if (googleLoginUser.fulfilled.match(result)) {
+      goAfterAuth(result.payload);
+    }
   };
 
   return (
@@ -115,13 +121,23 @@ const SignUp = () => {
           )}
         </div>
 
-        {/* This is where the "existing email" error from the backend shows */}
         {error && <p className="text-sm text-red-600">{error}</p>}
 
         <Button type="submit" className="w-full" disabled={status === 'loading'}>
           {status === 'loading' ? 'Creating account...' : 'Sign Up'}
         </Button>
       </form>
+
+      <div className="relative my-6">
+        <div className="absolute inset-0 flex items-center">
+          <span className="w-full border-t border-zinc-200" />
+        </div>
+        <div className="relative flex justify-center text-xs uppercase">
+          <span className="bg-white px-2 text-zinc-500">Or</span>
+        </div>
+      </div>
+
+      <GoogleSignInButton onCredential={handleGoogle} text="signup_with" />
 
       <p className="text-sm text-gray-500 mt-6">
         Already have an account?{' '}

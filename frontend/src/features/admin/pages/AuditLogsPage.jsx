@@ -1,21 +1,33 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import AdminLayout from '../../../layouts/AdminLayout';
 import { Card, CardContent } from '@/components/ui/card';
-import { mockAuditLogs } from '../data/mockAuditLogs';
+import { getAuditLogs } from '../../../services/adminService';
 
 export default function AuditLogsPage() {
   const [search, setSearch] = useState('');
+  const [logs, setLogs] = useState([]);
+  const [status, setStatus] = useState('loading');
+  const [error, setError] = useState('');
 
-  // TODO: replace mockAuditLogs with a real GET /audit-logs fetch
-  // once the backend exists.
-  const logs = mockAuditLogs.filter((log) => {
+  useEffect(() => {
+    getAuditLogs(100)
+      .then((data) => {
+        setLogs(data || []);
+        setStatus('succeeded');
+      })
+      .catch((err) => {
+        setError(err.response?.data?.error || 'Could not load audit logs.');
+        setStatus('failed');
+      });
+  }, []);
+
+  const filtered = logs.filter((log) => {
     const query = search.toLowerCase();
     if (!query) return true;
-    return (
-      log.actor.toLowerCase().includes(query) ||
-      log.action.toLowerCase().includes(query) ||
-      log.detail.toLowerCase().includes(query)
-    );
+    const actor = (log.actor_name || log.actor || '').toLowerCase();
+    const action = (log.action || '').toLowerCase();
+    const detail = (log.detail || log.description || '').toLowerCase();
+    return actor.includes(query) || action.includes(query) || detail.includes(query);
   });
 
   return (
@@ -26,35 +38,44 @@ export default function AuditLogsPage() {
           placeholder="Search by actor, action, or detail..."
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          className="w-72 px-4 py-2 rounded-md border border-gray-200 text-sm"
+          className="w-72 px-4 py-2 rounded-md border border-border text-sm"
         />
       </div>
 
+      {error && <p className="mb-4 text-sm text-red-600">{error}</p>}
+
       <Card className="px-4">
         <CardContent className="p-0">
-          {logs.length > 0 ? (
+          {status === 'loading' && (
+            <div className="text-center py-10 text-muted-foreground text-sm">Loading…</div>
+          )}
+          {status !== 'loading' && filtered.length > 0 ? (
             <table className="w-full text-sm">
               <thead>
-                <tr className="text-left text-gray-500 border-b border-gray-200">
+                <tr className="text-left text-muted-foreground border-b border-border">
                   <th className="py-3 font-medium">Actor</th>
                   <th className="py-3 font-medium">Action</th>
                   <th className="py-3 font-medium">Detail</th>
-                  <th className="py-3 font-medium">Timestamp</th>
+                  <th className="py-3 font-medium">When</th>
                 </tr>
               </thead>
               <tbody>
-                {logs.map((log) => (
-                  <tr key={log.id} className="border-b border-gray-100">
-                    <td className="py-3 text-gray-900 font-medium whitespace-nowrap">{log.actor}</td>
-                    <td className="py-3 text-gray-700 whitespace-nowrap">{log.action}</td>
-                    <td className="py-3 text-gray-500">{log.detail}</td>
-                    <td className="py-3 text-gray-400 whitespace-nowrap">{log.timestamp}</td>
+                {filtered.map((log) => (
+                  <tr key={log.id} className="border-b border-border">
+                    <td className="py-3">{log.actor_name || log.actor || '—'}</td>
+                    <td className="py-3">{log.action}</td>
+                    <td className="py-3 text-muted-foreground">{log.detail || log.description || '—'}</td>
+                    <td className="py-3 text-muted-foreground whitespace-nowrap">
+                      {log.created_at ? new Date(log.created_at).toLocaleString() : '—'}
+                    </td>
                   </tr>
                 ))}
               </tbody>
             </table>
           ) : (
-            <div className="text-center py-10 text-gray-400 text-sm">No matching activity.</div>
+            status !== 'loading' && (
+              <div className="text-center py-10 text-muted-foreground text-sm">No audit logs found.</div>
+            )
           )}
         </CardContent>
       </Card>

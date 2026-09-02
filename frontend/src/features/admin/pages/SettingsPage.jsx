@@ -15,10 +15,10 @@ const tabs = [
 
 function Toggle({ checked, onChange, label, hint }) {
   return (
-    <div className="flex items-center justify-between py-3 border-b border-gray-100 last:border-0">
+    <div className="flex items-center justify-between py-3 border-b border-border last:border-0">
       <div>
-        <p className="text-sm font-medium text-gray-900">{label}</p>
-        {hint && <p className="text-xs text-gray-500 mt-0.5">{hint}</p>}
+        <p className="text-sm font-medium text-foreground">{label}</p>
+        {hint && <p className="text-xs text-muted-foreground mt-0.5">{hint}</p>}
       </div>
       <button
         type="button"
@@ -26,10 +26,10 @@ function Toggle({ checked, onChange, label, hint }) {
         aria-checked={checked}
         onClick={() => onChange(!checked)}
         className={`relative inline-flex h-5 w-9 flex-shrink-0 items-center rounded-full transition-colors ${
-          checked ? 'bg-primary' : 'bg-gray-200'
+          checked ? 'bg-primary' : 'bg-gray-200 dark:bg-zinc-700'
         }`}
       >
-        <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${checked ? 'translate-x-4' : 'translate-x-0.5'}`} />
+        <span className={`inline-block h-4 w-4 transform rounded-full bg-card transition-transform ${checked ? 'translate-x-4' : 'translate-x-0.5'}`} />
       </button>
     </div>
   );
@@ -37,8 +37,8 @@ function Toggle({ checked, onChange, label, hint }) {
 
 function SaveBar({ saved, onSave }) {
   return (
-    <div className="flex items-center justify-between pt-5 mt-5 border-t border-gray-100">
-      <span className="text-xs text-gray-500">{saved ? 'Changes saved.' : 'Changes apply platform-wide once saved.'}</span>
+    <div className="flex items-center justify-between pt-5 mt-5 border-t border-border">
+      <span className="text-xs text-muted-foreground">{saved ? 'Changes saved.' : 'Changes apply platform-wide once saved.'}</span>
       <Button onClick={onSave}>Save changes</Button>
     </div>
   );
@@ -67,7 +67,7 @@ function PairingAlgorithmTab() {
                 setSaved(false);
               }}
               className={`rounded-md border px-4 py-2 text-sm font-medium transition-colors ${
-                frequency === option ? 'border-primary bg-primary text-primary-foreground' : 'border-gray-200 text-gray-600 hover:border-primary hover:text-primary'
+                frequency === option ? 'border-primary bg-primary text-primary-foreground' : 'border-border text-muted-foreground hover:border-primary hover:text-primary'
               }`}
             >
               {option}
@@ -78,7 +78,7 @@ function PairingAlgorithmTab() {
 
       <div className="mb-2">
         <Label className="mb-1 block">Match on</Label>
-        <p className="text-xs text-gray-500 mb-2">Choose which signals the algorithm weighs when forming pairs.</p>
+        <p className="text-xs text-muted-foreground mb-2">Choose which signals the algorithm weighs when forming pairs.</p>
       </div>
       <Toggle checked={criteria.skillLevel} onChange={() => { toggleCriterion('skillLevel'); setSaved(false); }} label="Skill level" hint="Balance pairs by assessment mastery score." />
       <Toggle checked={criteria.learningGoals} onChange={() => { toggleCriterion('learningGoals'); setSaved(false); }} label="Learning goals" hint="Match students working on similar focus areas." />
@@ -124,7 +124,7 @@ function UserPermissionsTab() {
       <div className="overflow-x-auto -mx-1">
         <table className="w-full text-sm">
           <thead>
-            <tr className="text-left text-gray-500 border-b border-gray-200">
+            <tr className="text-left text-muted-foreground border-b border-border">
               <th className="py-2 px-1 font-medium">Permission</th>
               {ROLES.map((role) => (
                 <th key={role} className="py-2 px-1 font-medium text-center">{role}</th>
@@ -133,8 +133,8 @@ function UserPermissionsTab() {
           </thead>
           <tbody>
             {PERMISSIONS.map((perm) => (
-              <tr key={perm.key} className="border-b border-gray-100 last:border-0">
-                <td className="py-3 px-1 text-gray-800">{perm.label}</td>
+              <tr key={perm.key} className="border-b border-border last:border-0">
+                <td className="py-3 px-1 text-foreground">{perm.label}</td>
                 {ROLES.map((role) => (
                   <td key={role} className="py-3 px-1 text-center">
                     <input
@@ -152,7 +152,7 @@ function UserPermissionsTab() {
           </tbody>
         </table>
       </div>
-      <p className="text-xs text-gray-400 mt-3">Admin permissions are fixed and cannot be restricted.</p>
+      <p className="text-xs text-muted-foreground mt-3">Admin permissions are fixed and cannot be restricted.</p>
       <SaveBar saved={saved} onSave={() => setSaved(true)} />
     </div>
   );
@@ -189,7 +189,7 @@ function NotificationTemplatesTab() {
               setSaved(false);
             }}
             className={`w-full text-left px-3 py-2 rounded-md text-sm font-medium ${
-              activeTemplateId === template.id ? 'bg-primary/10 text-primary' : 'text-gray-600 hover:bg-gray-100'
+              activeTemplateId === template.id ? 'bg-primary/10 text-primary' : 'text-muted-foreground hover:bg-muted'
             }`}
           >
             {template.label}
@@ -205,7 +205,7 @@ function NotificationTemplatesTab() {
         <div className="space-y-1.5">
           <Label htmlFor="template-body">Message body</Label>
           <Textarea id="template-body" value={activeDraft.body} onChange={(e) => updateDraft('body', e.target.value)} className="min-h-[140px]" />
-          <p className="text-xs text-gray-400">Use placeholders like {'{{student_name}}'} — they're filled in automatically when sent.</p>
+          <p className="text-xs text-muted-foreground">Use placeholders like {'{{student_name}}'} — they're filled in automatically when sent.</p>
         </div>
         <SaveBar saved={saved} onSave={() => setSaved(true)} />
       </div>
@@ -247,22 +247,22 @@ function PlatformBrandingTab() {
             <button
               key={swatch.value}
               type="button"
-              onClk={() => { setColor(swatch.value); setSaved(false); }}
+              onClick={() => { setColor(swatch.value); setSaved(false); }}
               aria-label={swatch.name}
-              className={`w-8 h-8 rounded-full border-2 transition-transform ${color === swatch.value ? 'border-gray-900 scale-110' : 'border-transparent'}`}
+              className={`w-8 h-8 rounded-full border-2 transition-transform ${color === swatch.value ? 'border-gray-900 dark:border-white scale-110' : 'border-transparent'}`}
               style={{ backgroundColor: swatch.value }}
             />
           ))}
         </div>
       </div>
 
-      <div className="mt-5 rounded-lg border border-gray-200 p-4 flex items-center gap-3">
+      <div className="mt-5 rounded-lg border border-border p-4 flex items-center gap-3">
         <div className="w-9 h-9 rounded-md flex items-center justify-center text-white text-xs font-bold" style={{ backgroundColor: color }}>
           {platformName.charAt(0)}
         </div>
         <div>
-          <p className="text-sm font-semibold text-gray-900">{platformName}</p>
-          <p className="text-xs text-gray-500">{tagline}</p>
+          <p className="text-sm font-semibold text-foreground">{platformName}</p>
+          <p className="text-xs text-muted-foreground">{tagline}</p>
         </div>
       </div>
 
@@ -286,8 +286,8 @@ export default function SettingsPage() {
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
-              className={`w-full text-left flex items-center gap-2.5 px-3 py-2 rounded-md text-sm font-medium ${
-                activeTab === tab.id ? 'bg-primary/10 text-primary' : 'text-gray-600 hover:bg-gray-100'
+              className={`w-full text-left flex items-center gap-2.5 -3 py-2 rounded-md text-sm font-medium ${
+                activeTab === tab.id ? 'bg-primary/10 text-primary' : 'text-muted-foreground hover:bg-muted'
               }`}
             >
               <tab.icon className="w-4 h-4 shrink-0" strokeWidth={1.75} />
@@ -296,9 +296,9 @@ export default function SettingsPage() {
           ))}
         </nav>
 
-        <div className="flex-1 bg-white border border-gray-200 rounded-lg p-6">
-          <h2 className="text-lg font-bold text-gray-900 mb-1">{current.label}</h2>
-          <p className="text-gray-500 text-sm mb-5">{current.description}</p>
+        <div className="flex-1 bg-card border border-border rounded-lg p-6">
+          <h2 className="text-lg font-bold text-foreground mb-1">{current.label}</h2>
+          <p className="text-muted-foreground text-sm mb-5">{current.description}</p>
 
           {activeTab === 'pairing-algorithm' && <PairingAlgorithmTab />}
           {activeTab === 'user-permissions' && <UserPermissionsTab />}

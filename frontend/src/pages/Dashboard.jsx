@@ -13,15 +13,15 @@ const STATUSES = ['Active Pair', 'Unpaired', 'At-Risk'];
 const TONES = ['green', 'blue', 'orange'];
 
 const TONE_STYLES = {
-  green: 'bg-green-100 text-green-700',
-  blue: 'bg-blue-100 text-blue-700',
-  orange: 'bg-orange-100 text-orange-700',
+  green: 'bg-green-100 dark:bg-green-500/15 text-green-700 dark:text-green-400',
+  blue: 'bg-blue-100 dark:bg-blue-500/15 text-blue-700 dark:text-blue-400',
+  orange: 'bg-orange-100 dark:bg-orange-500/15 text-orange-700 dark:text-orange-400',
 };
 
 const STATUS_STYLES = {
-  'Active Pair': 'border-green-200 bg-green-50 text-green-700',
-  Unpaired: 'border-amber-200 bg-amber-50 text-amber-700',
-  'At-Risk': 'border-red-200 bg-red-50 text-red-700',
+  'Active Pair': 'border-green-200 bg-green-50 dark:bg-green-500/15 text-green-700 dark:text-green-400',
+  Unpaired: 'border-amber-200 bg-amber-50 dark:bg-amber-500/15 text-amber-700 dark:text-amber-400',
+  'At-Risk': 'border-red-200 bg-red-50 dark:bg-red-500/15 text-red-700 dark:text-red-400',
 };
 
 const pairings = [
@@ -84,12 +84,12 @@ function Dashboard() {
   return (
     <StudentLayout eyebrow="Student workspace" title={`Welcome, ${user?.name || 'there'}`}>
       {showBanner && (
-        <div className="flex items-center gap-3 border-l-2 border-primary bg-gray-50 px-4 py-3 mb-6">
-          <p className="text-sm text-gray-700 flex-1">Your pairing for this week is live.</p>
+        <div className="flex items-center gap-3 border-l-2 border-primary bg-muted px-4 py-3 mb-6">
+          <p className="text-sm text-foreground flex-1">Your pairing for this week is live.</p>
           <button
             onClick={() => setShowBanner(false)}
             aria-label="Dismiss notification"
-            className="text-gray-400 hover:text-gray-600"
+            className="text-muted-foreground hover:text-muted-foreground"
             type="button"
           >
             <X className="w-4 h-4" />
@@ -101,9 +101,9 @@ function Dashboard() {
         <div className="flex items-center justify-between mb-4">
           <div>
             <p className="text-xs font-medium uppercase tracking-wide text-primary mb-1">This week</p>
-            <h2 className="text-lg font-bold text-gray-900">My pairing</h2>
+            <h2 className="text-lg font-bold text-foreground">My pairing</h2>
           </div>
-          <span className="inline-flex items-center gap-1.5 text-xs font-medium text-green-700 bg-green-50 px-2.5 py-1 rounded-full">
+          <span className="inline-flex items-center gap-1.5 text-xs font-medium text-green-700 dark:text-green-400 bg-green-50 dark:bg-green-500/15 px-2.5 py-1 rounded-full">
             <span className="w-1.5 h-1.5 rounded-full bg-green-500" />
             Live
           </span>
@@ -116,10 +116,10 @@ function Dashboard() {
                 {currentPair.initials}
               </div>
               <div className="flex-1">
-                <p className="text-xs text-gray-500 mb-1">You are paired with</p>
-                <h3 className="text-lg font-bold text-gray-900">{currentPair.partner}</h3>
+                <p className="text-xs text-muted-foreground mb-1">You are paired with</p>
+                <h3 className="text-lg font-bold text-foreground">{currentPair.partner}</h3>
                 <p className="text-sm text-primary font-medium">{currentPair.focus}</p>
-                <p className="text-sm text-gray-500 mt-1">
+                <p className="text-sm text-muted-foreground mt-1">
                   A chance to learn, share ideas, and make progress together.
                 </p>
               </div>
@@ -129,9 +129,9 @@ function Dashboard() {
         ) : (
           <Card className="border-dashed">
             <CardContent className="text-center py-10">
-              <Circle className="w-6 h-6 mx-auto text-gray-300 mb-2" />
-              <h3 className="font-bold text-gray-900 mb-1">No pairing yet</h3>
-              <p className="text-sm text-gray-500">
+              <Circle className="w-6 h-6 mx-auto text-gray-300 dark:text-zinc-600 dark:text-zinc-600 mb-2" />
+              <h3 className="font-bold text-foreground mb-1">No pairing yet</h3>
+              <p className="text-sm text-muted-foreground">
                 The TM has not published a pairing for this week. Check back soon.
               </p>
             </CardContent>
@@ -142,7 +142,7 @@ function Dashboard() {
       <section id="students">
         <div className="flex items-center gap-3 mb-4 flex-wrap">
           <div className="relative flex-1 min-w-[220px] max-w-sm">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
             <Input
               value={search}
               onChange={(event) => setSearch(event.target.value)}
@@ -151,31 +151,31 @@ function Dashboard() {
               className="pl-9"
             />
           </div>
-          <select aria-label="Filter by cohort" className="px-3 py-2 rounded-md border border-gray-200 text-sm text-gray-600">
+          <select aria-label="Filter by cohort" className="px-3 py-2 rounded-md border border-border text-sm text-muted-foreground">
             <option>All Cohorts</option>
           </select>
-          <select aria-label="Filter by module" className="px-3 py-2 rounded-md border border-gray-200 text-sm text-gray-600">
+          <select aria-label="Filter by module" className="px-3 py-2 rounded-md border border-border text-sm text-muted-foreground">
             <option>All Modules</option>
           </select>
-          <select aria-label="Filter by status" className="px-3 py-2 rounded-md border border-gray-200 text-sm text-gray-600">
+          <select aria-label="Filter by status" className="px-3 py-2 rounded-md border border-border text-sm text-muted-foreground">
             <option>Any Status</option>
           </select>
         </div>
 
         <div className="flex items-center justify-between mb-4">
           <div>
-            <h2 className="text-lg font-bold text-gray-900 flex items-center gap-2">
+            <h2 className="text-lg font-bold text-foreground flex items-center gap-2">
               Students
               <span className="inline-flex items-center justify-center min-w-[22px] h-[22px] px-1.5 rounded-full bg-primary/10 text-primary text-xs font-bold">
                 {students.length}
               </span>
             </h2>
-            <p className="text-sm text-gray-500">Showing students across all active cohorts</p>
+            <p className="text-sm text-muted-foreground">Showing students across all active cohorts</p>
           </div>
         </div>
 
-        {status === 'loading' && <p className="text-sm text-gray-500 py-6">Loading students...</p>}
-        {status === 'failed' && <p className="text-sm text-red-600 py-6">{error}</p>}
+        {status === 'loading' && <p className="text-sm text-muted-foreground py-6">Loading students...</p>}
+        {status === 'failed' && <p className="text-sm text-red-600 dark:text-red-400 py-6">{error}</p>}
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {filteredStudents.map((student) => (
@@ -192,7 +192,7 @@ function Dashboard() {
                   <button
                     type="button"
                     aria-label={`More options for ${student.name}`}
-                    className="text-gray-400 hover:text-gray-600 text-xs font-medium"
+                    className="text-muted-foreground hover:text-muted-foreground text-xs font-medium"
                   >
                     More
                   </button>
@@ -204,12 +204,12 @@ function Dashboard() {
                   >
                     {student.initials}
                   </div>
-                  <h3 className="font-bold text-gray-900">{student.name}</h3>
-                  <p className="text-xs text-gray-500">{student.email}</p>
+                  <h3 className="font-bold text-foreground">{student.name}</h3>
+                  <p className="text-xs text-muted-foreground">{student.email}</p>
                 </div>
 
                 <div className="flex items-center justify-center gap-2 mb-4">
-                  <Badge variant="outline" className="border-gray-200 bg-gray-50 text-gray-600">
+                  <Badge variant="outline" className="border-border bg-muted text-muted-foreground">
                     {student.cohort}
                   </Badge>
                   <Badge variant="outline" className={STATUS_STYLES[student.status]}>
@@ -217,27 +217,27 @@ function Dashboard() {
                   </Badge>
                 </div>
 
-                <div className="grid grid-cols-2 gap-3 py-3 border-t border-gray-100 text-sm">
+                <div className="grid grid-cols-2 gap-3 py-3 border-t border-border text-sm">
                   <div>
-                    <p className="text-xs text-gray-400 mb-0.5">Focus</p>
-                    <p className="font-medium text-gray-800 truncate">{student.module}</p>
+                    <p className="text-xs text-muted-foreground mb-0.5">Focus</p>
+                    <p className="font-medium text-foreground truncate">{student.module}</p>
                   </div>
                   <div className="text-right">
-                    <p className="text-xs text-gray-400 mb-0.5">Latest Score</p>
-                    <p className="font-semibold text-gray-900">
+                    <p className="text-xs text-muted-foreground mb-0.5">Latest Score</p>
+                    <p className="font-semibold text-foreground">
                       {student.score}{' '}
-                      <span className={student.change.startsWith('-') ? 'text-red-600 text-xs font-semibold' : 'text-green-600 text-xs font-semibold'}>
+                      <span className={student.change.startsWith('-') ? 'text-red-600 dark:text-red-400 text-xs font-semibold' : 'text-green-600 dark:text-green-400 text-xs font-semibold'}>
                         {student.change}
                       </span>
                     </p>
                   </div>
                 </div>
 
-                <div className="flex items-center justify-between pt-3 border-t border-gray-100 text-sm">
+                <div className="flex items-center justify-between pt-3 border-t border-border text-sm">
                   {student.partner ? (
-                    <span className="text-gray-500">Paired w/ {student.partner}</span>
+                    <span className="text-muted-foreground">Paired w/ {student.partner}</span>
                   ) : (
-                    <span className="text-amber-600">Unpaired</span>
+                    <span className="text-amber-600 dark:text-amber-400">Unpaired</span>
                   )}
                   <button type="button" className="text-primary font-medium hover:underline">
                     View Profile
