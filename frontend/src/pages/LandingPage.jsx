@@ -15,7 +15,8 @@ const LandingPage = () => {
           <a href="#why-pair">Why pair?</a>
         </div>
         <div className="landing-actions">
-          <Link className="landing-login" to="/login">Log in</Link>
+          <Link className="landing-login" to="/login">Student Log in</Link>
+          <Link className="landing-login" to="/admin/login">Admin Log in</Link>
           <Link className="landing-button landing-button-dark" to="/signup">Join MoringaPair <ArrowRight size={16} /></Link>
         </div>
         <button className="landing-menu" type="button" aria-label="Open navigation menu"><Menu size={21} /></button>

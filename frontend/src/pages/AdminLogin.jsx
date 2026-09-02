@@ -1,9 +1,8 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
-import { clearError, loginUser, googleLoginUser } from '../store/authSlice';
+import { clearError, loginUser } from '../store/authSlice';
 import AuthLayout from '../layouts/AuthLayout';
-import GoogleSignInButton from '../components/GoogleSignInButton';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -14,7 +13,7 @@ const destinations = {
   student: '/dashboard',
 };
 
-const Login = () => {
+const AdminLogin = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { status, error } = useSelector((state) => state.auth);
@@ -22,7 +21,7 @@ const Login = () => {
   const [formError, setFormError] = useState('');
 
   const goAfterAuth = (user) => {
-    navigate(destinations[user?.role] || '/dashboard');
+    navigate(destinations[user?.role] || '/admin/dashboard');
   };
 
   const handleSubmit = async (event) => {
@@ -39,21 +38,12 @@ const Login = () => {
     }
   };
 
-  const handleGoogle = async (idToken) => {
-    dispatch(clearError());
-    setFormError('');
-    const result = await dispatch(googleLoginUser(idToken));
-    if (googleLoginUser.fulfilled.match(result)) {
-      goAfterAuth(result.payload);
-    }
-  };
-
   return (
     <AuthLayout
-      eyebrow="Welcome back"
-      title="Student Log in"
-      subtitle="Check your weekly pairing and continue your assessment."
-      asideQuote="Students are paired weekly based on skill level and learning goals."
+      eyebrow="Admin access"
+      title="Admin Log in"
+      subtitle="Manage cohorts, pairings, mentors, and platform settings."
+      asideQuote="Admins keep the platform running smoothly for students and mentors."
     >
       <form onSubmit={handleSubmit} noValidate className="space-y-4">
         <div className="space-y-1.5">
@@ -61,7 +51,7 @@ const Login = () => {
           <Input
             id="email"
             type="email"
-            placeholder="you@example.com"
+            placeholder="you@moringapair.com"
             value={credentials.email}
             onChange={(event) =>
               setCredentials({ ...credentials, email: event.target.value })
@@ -91,25 +81,14 @@ const Login = () => {
         </Button>
       </form>
 
-      <div className="relative my-6">
-        <div className="absolute inset-0 flex items-center">
-          <span className="w-full border-t border-zinc-200" />
-        </div>
-        <div className="relative flex justify-center text-xs uppercase">
-          <span className="bg-white px-2 text-zinc-500">Or</span>
-        </div>
-      </div>
-
-      <GoogleSignInButton onCredential={handleGoogle} />
-
       <p className="text-sm text-gray-500 mt-6">
-        New to MoringaPair?{' '}
-        <Link to="/signup" className="text-primary font-medium hover:underline">
-          Create an account
+        Not an admin?{' '}
+        <Link to="/login" className="text-primary font-medium hover:underline">
+          Student login
         </Link>
       </p>
     </AuthLayout>
   );
 };
 
-export default Login;
+export default AdminLogin;

@@ -1,5 +1,6 @@
 import { Navigate, Routes, Route } from 'react-router-dom';
 import Login from '../pages/Login';
+import AdminLogin from '../pages/AdminLogin';
 import SignUp from '../pages/SignUp';
 import Profile from '../pages/profile';
 import Dashboard from '../pages/Dashboard';
@@ -26,6 +27,7 @@ const AppRoutes = () => {
       <Route path="/" element={<LandingPage />} />
       <Route path="/signup" element={<SignUp />} />
       <Route path="/login" element={<Login />} />
+      <Route path="/admin/login" element={<AdminLogin />} />
       <Route path="/dashboard" element={<RequireAuth allowedRoles={['student']}><Dashboard /></RequireAuth>} />
       <Route path="/profile" element={<RequireAuth allowedRoles={['student']}><Profile /></RequireAuth>} />
       <Route path="/pairing" element={<RequireAuth allowedRoles={['student']}><Pairing /></RequireAuth>} />
