@@ -20,10 +20,18 @@ def create_app():
     jwt.init_app(app)
     CORS(app)
 
-    from app.models import User
+    from app.models import User, Pairing, Notification
+    from app.routes import auth, students, pairings, analytics, notifications
 
     @app.route("/")
     def health_check():
         return jsonify({"message": "MoringaPair API is running!"})
+
+    # Register blueprints
+    app.register_blueprint(auth.auth_bp)
+    app.register_blueprint(students.students_bp)
+    app.register_blueprint(pairings.pairings_bp)
+    app.register_blueprint(analytics.analytics_bp)
+    app.register_blueprint(notifications.notifications_bp)
 
     return app
