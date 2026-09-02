@@ -19,14 +19,14 @@ export default function PairingPreviewList({ pairs, onSwap }) {
       {pairs.map((pair, index) => (
         <div
           key={pair.id}
-          className="flex items-center justify-between border border-gray-200 rounded-md px-4 py-3"
+          className="flex items-center justify-between border border-border rounded-md px-4 py-3"
         >
           <div className="flex items-center gap-2 flex-wrap">
-            <span className="text-xs font-medium text-gray-400 w-16">Pair {index + 1}</span>
+            <span className="text-xs font-medium text-muted-foreground w-16">Pair {index + 1}</span>
             {pair.members.map((member) => (
               <span
                 key={member}
-                className="text-sm font-medium text-gray-900 bg-gray-100 px-2.5 py-1 rounded-full"
+                className="text-sm font-medium text-foreground bg-muted px-2.5 py-1 rounded-full"
               >
                 {member}
               </span>
@@ -40,7 +40,7 @@ export default function PairingPreviewList({ pairs, onSwap }) {
                 onChange={(e) =>
                   setSwapTarget((current) => ({ ...current, [index]: e.target.value }))
                 }
-                className="text-xs px-2 py-1.5 rounded-md border border-gray-200 text-gray-600"
+                className="text-xs px-2 py-1.5 rounded-md border border-border text-muted-foreground"
               >
                 <option value="">Swap with...</option>
                 {pairs

@@ -1,29 +1,28 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
-import { clearError, loginUser } from '../store/authSlice';
+import { clearError, loginUser, googleLoginUser } from '../store/authSlice';
 import AuthLayout from '../layouts/AuthLayout';
+import GoogleSignInButton from '../components/GoogleSignInButton';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+
+const destinations = {
+  admin: '/admin/dashboard',
+  mentor: '/mentor/dashboard',
+  student: '/dashboard',
+};
 
 const Login = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { status, error } = useSelector((state) => state.auth);
   const [credentials, setCredentials] = useState({ email: '', password: '' });
-  const [selectedRole, setSelectedRole] = useState('student');
   const [formError, setFormError] = useState('');
 
-  const demoAccounts = {
-    admin: { email: 'admin@moringapair.com', password: 'Admin123!' },
-    student: { email: 'student@moringapair.com', password: 'Student123!' },
-  };
-
-  const chooseRole = (role) => {
-    setSelectedRole(role);
-    setCredentials(demoAccounts[role]);
-    setFormError('');
+  const goAfterAuth = (user) => {
+    navigate(destinations[user?.role] || '/dashboard');
   };
 
   const handleSubmit = async (event) => {
@@ -36,12 +35,16 @@ const Login = () => {
     setFormError('');
     const result = await dispatch(loginUser(credentials));
     if (loginUser.fulfilled.match(result)) {
-      const loggedUser = result.payload;
-      const destinations = {
-        admin: '/admin/dashboard',
-        student: '/dashboard',
-      };
-      navigate(destinations[loggedUser?.role] || destinations[selectedRole]);
+      goAfterAuth(result.payload);
+    }
+  };
+
+  const handleGoogle = async (idToken) => {
+    dispatch(clearError());
+    setFormError('');
+    const result = await dispatch(googleLoginUser(idToken));
+    if (googleLoginUser.fulfilled.match(result)) {
+      goAfterAuth(result.payload);
     }
   };
 
@@ -53,25 +56,6 @@ const Login = () => {
       asideQuote="Students are paired weekly based on skill level and learning goals."
     >
       <form onSubmit={handleSubmit} noValidate className="space-y-4">
-        <div className="space-y-2">
-          <Label>Enter as</Label>
-          <div className="grid grid-cols-3 gap-2" role="group" aria-label="Choose account type">
-            {Object.keys(demoAccounts).map((role) => (
-              <button
-                key={role}
-                type="button"
-                onClick={() => chooseRole(role)}
-                className={`rounded-md border px-3 py-2 text-sm font-medium capitalize transition-colors ${
-                  selectedRole === role
-                    ? 'border-primary bg-primary text-primary-foreground'
-                    : 'border-gray-200 text-gray-600 hover:border-primary hover:text-primary'
-                }`}
-              >
-                {role}
-              </button>
-            ))}
-          </div>
-        </div>
         <div className="space-y-1.5">
           <Label htmlFor="email">Email address</Label>
           <Input
@@ -79,7 +63,9 @@ const Login = () => {
             type="email"
             placeholder="you@example.com"
             value={credentials.email}
-            onChange={(event) => setCredentials({ ...credentials, email: event.target.value })}
+            onChange={(event) =>
+              setCredentials({ ...credentials, email: event.target.value })
+            }
           />
         </div>
 
@@ -90,7 +76,9 @@ const Login = () => {
             type="password"
             placeholder="Enter your password"
             value={credentials.password}
-            onChange={(event) => setCredentials({ ...credentials, password: event.target.value })}
+            onChange={(event) =>
+              setCredentials({ ...credentials, password: event.target.value })
+            }
           />
         </div>
 
@@ -102,6 +90,17 @@ const Login = () => {
           {status === 'loading' ? 'Signing in...' : 'Log in'}
         </Button>
       </form>
+
+      <div className="relative my-6">
+        <div className="absolute inset-0 flex items-center">
+          <span className="w-full border-t border-zinc-200" />
+        </div>
+        <div className="relative flex justify-center text-xs uppercase">
+          <span className="bg-white px-2 text-zinc-500">Or</span>
+        </div>
+      </div>
+
+      <GoogleSignInButton onCredential={handleGoogle} />
 
       <p className="text-sm text-gray-500 mt-6">
         New to MoringaPair?{' '}

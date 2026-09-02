@@ -78,15 +78,15 @@ function Assessment() {
               <p className="text-xs font-medium uppercase tracking-wide text-primary mb-1">
                 A few thoughtful questions
               </p>
-              <h2 className="text-lg font-bold text-gray-900">Let's find your learning rhythm.</h2>
-              <p className="text-sm text-gray-500 mt-1 max-w-md">
+              <h2 className="text-lg font-bold text-foreground">Let's find your learning rhythm.</h2>
+              <p className="text-sm text-muted-foreground mt-1 max-w-md">
                 Your answers help us understand how you work best with a partner. There are no right
                 or wrong answers.
               </p>
             </div>
             <div className="text-right flex-shrink-0">
-              <span className="text-2xl font-bold text-gray-900">{progress}%</span>
-              <p className="text-xs text-gray-500">complete</p>
+              <span className="text-2xl font-bold text-foreground">{progress}%</span>
+              <p className="text-xs text-muted-foreground">complete</p>
             </div>
           </div>
 
@@ -94,7 +94,7 @@ function Assessment() {
 
           <Card>
             <CardContent>
-              <div className="flex items-center justify-between text-xs text-gray-500 mb-3">
+              <div className="flex items-center justify-between text-xs text-muted-foreground mb-3">
                 <span>
                   Question {questionIndex + 1} of {questions.length}
                 </span>
@@ -103,7 +103,7 @@ function Assessment() {
                 </span>
               </div>
 
-              <h3 className="text-base font-bold text-gray-900 mb-4">{question.prompt}</h3>
+              <h3 className="text-base font-bold text-foreground mb-4">{question.prompt}</h3>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-6">
                 {question.answers.map((answer, index) => (
@@ -113,14 +113,14 @@ function Assessment() {
                     className={`flex items-center gap-3 text-left px-4 py-3 rounded-md border text-sm transition-colors ${
                       answers[questionIndex] === index
                         ? 'border-primary bg-primary/10 text-primary'
-                        : 'border-gray-200 hover:bg-gray-50 text-gray-700'
+                        : 'border-border hover:bg-muted text-foreground'
                     }`}
                   >
                     <span
                       className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-semibold flex-shrink-0 ${
                         answers[questionIndex] === index
                           ? 'bg-primary text-primary-foreground'
-                          : 'bg-gray-100 text-gray-500'
+                          : 'bg-muted text-muted-foreground'
                       }`}
                     >
                       {String.fromCharCode(65 + index)}
@@ -131,7 +131,7 @@ function Assessment() {
               </div>
 
               <div className="flex items-center justify-between">
-                <span className="text-xs text-gray-500">
+                <span className="text-xs text-muted-foreground">
                   {answers[questionIndex] !== undefined ? 'Answer saved' : 'Select one answer'}
                 </span>
                 <Button disabled={answers[questionIndex] === undefined} onClick={nextQuestion}>
@@ -148,15 +148,15 @@ function Assessment() {
               <p className="text-xs font-medium uppercase tracking-wide text-primary mb-1">
                 Your latest snapshot
               </p>
-              <h2 className="text-lg font-bold text-gray-900">Strengths to share, skills to grow.</h2>
-              <p className="text-sm text-gray-500 mt-1 max-w-md">
+              <h2 className="text-lg font-bold text-foreground">Strengths to share, skills to grow.</h2>
+              <p className="text-sm text-muted-foreground mt-1 max-w-md">
                 These results give your mentor a starting point for thoughtful pairings. They can
                 evolve as you learn.
               </p>
             </div>
             <div className="text-right flex-shrink-0">
-              <span className="text-2xl font-bold text-gray-900">78</span>
-              <p className="text-xs text-gray-500">
+              <span className="text-2xl font-bold text-foreground">78</span>
+              <p className="text-xs text-muted-foreground">
                 / 100
                 <br />
                 overall fit
@@ -171,25 +171,25 @@ function Assessment() {
                   <p className="text-xs font-medium uppercase tracking-wide text-primary mb-1">
                     Skill breakdown
                   </p>
-                  <h3 className="font-bold text-gray-900">Where you are today</h3>
+                  <h3 className="font-bold text-foreground">Where you are today</h3>
                 </div>
-                <span className="text-xs text-gray-400">Updated just now</span>
+                <span className="text-xs text-muted-foreground">Updated just now</span>
               </div>
 
               <div className="space-y-4 mb-6">
                 {scores.map((item) => (
                   <div key={item.label}>
                     <div className="flex items-center justify-between text-sm mb-1">
-                      <span className="text-gray-700">{item.label}</span>
-                      <strong className="text-gray-900">{item.score}%</strong>
+                      <span className="text-foreground">{item.label}</span>
+                      <strong className="text-foreground">{item.score}%</strong>
                     </div>
                     <Progress value={item.score} />
                   </div>
                 ))}
               </div>
 
-              <div className="border-l-2 border-primary bg-gray-50 px-4 py-3 mb-4">
-                <p className="text-sm text-gray-700">
+              <div className="border-l-2 border-primary bg-muted px-4 py-3 mb-4">
+                <p className="text-sm text-foreground">
                   Your standout strength is communication. Consider pairing with someone who
                   enjoys exploring ideas out loud.
                 </p>
@@ -213,8 +213,8 @@ function Assessment() {
             <p className="text-xs font-medium uppercase tracking-wide text-primary mb-1">
               Week of Aug 17, 2026
             </p>
-            <h2 className="text-lg font-bold text-gray-900">How was your pairing with Amina?</h2>
-            <p className="text-sm text-gray-500 mt-1 max-w-md">
+            <h2 className="text-lg font-bold text-foreground">How was your pairing with Amina?</h2>
+            <p className="text-sm text-muted-foreground mt-1 max-w-md">
               Your honest reflection helps us make future pairings more useful for everyone.
             </p>
             <div className="flex items-center gap-3 mt-4">
@@ -222,8 +222,8 @@ function Assessment() {
                 AW
               </span>
               <div>
-                <p className="font-medium text-gray-900 text-sm">Amina Wanjiku</p>
-                <p className="text-xs text-gray-500">Frontend foundations</p>
+                <p className="font-medium text-foreground text-sm">Amina Wanjiku</p>
+                <p className="text-xs text-muted-foreground">Frontend foundations</p>
               </div>
             </div>
           </div>
@@ -232,7 +232,7 @@ function Assessment() {
             <CardContent>
               <form onSubmit={submitFeedback} className="space-y-4">
                 <div>
-                  <label className="text-sm font-medium text-gray-700">
+                  <label className="text-sm font-medium text-foreground">
                     How would you rate this pairing?{' '}
                     <span className="text-red-500 text-xs font-normal">Required</span>
                   </label>
@@ -243,7 +243,7 @@ function Assessment() {
                         key={value}
                         onClick={() => setRating(value)}
                         aria-label={`${value} out of 5`}
-                        className={rating >= value ? 'text-amber-400' : 'text-gray-300'}
+                        className={rating >= value ? 'text-amber-400' : 'text-gray-300 dark:text-zinc-600 dark:text-zinc-600'}
                       >
                         <Star className="w-6 h-6" fill="currentColor" />
                       </button>
@@ -252,7 +252,7 @@ function Assessment() {
                 </div>
 
                 <div>
-                  <label htmlFor="feedback-comment" className="text-sm font-medium text-gray-700">
+                  <label htmlFor="feedback-comment" className="text-sm font-medium text-foreground">
                     What worked well, or what could be better?{' '}
                     <span className="text-red-500 text-xs font-normal">Required</span>
                   </label>
@@ -267,7 +267,7 @@ function Assessment() {
                 </div>
 
                 <div className="flex items-center justify-between">
-                  <span className="text-xs text-gray-500">
+                  <span className="text-xs text-muted-foreground">
                     {submitted ? 'Thanks, your feedback was submitted.' : 'Your feedback is oy shared with the TM.'}
                   </span>
                   <Button type="submit">{submitted ? 'Submitted' : 'Submit feedback'}</Button>

@@ -5,6 +5,8 @@ import Profile from '../pages/profile';
 import Dashboard from '../pages/Dashboard';
 import Pairing from '../pages/Pairing';
 import PairingHistory from '../pages/PairingHistory';
+import PairingsPage from '../features/admin/pages/PairingsPage';
+import AuditLogsPage from '../features/admin/pages/AuditLogsPage';
 import Assessment from '../pages/Assessment';
 import RequireAuth from './RequireAuth';
 import DashboardPage from '../features/admin/pages/DashboardPage';
@@ -12,6 +14,10 @@ import CohortsPage from '../features/admin/pages/CohortsPage';
 import MentorsPage from '../features/admin/pages/MentorsPage';
 import StudentsPage from '../features/admin/pages/StudentsPage';
 import SettingsPage from '../features/admin/pages/SettingsPage';
+import MentorDashboardPage from '../features/mentor/pages/MentorDashboardPage';
+import MentorStudentsPage from '../features/mentor/pages/MentorStudentsPage';
+import MentorFeedbackPage from '../features/mentor/pages/MentorFeedbackPage';
+import MentorProfilePage from '../features/mentor/pages/MentorProfilePage';
 import LandingPage from '../pages/LandingPage';
 
 const AppRoutes = () => {
@@ -46,6 +52,32 @@ const AppRoutes = () => {
       <Route
         path="/admin/settings"
         element={<RequireAuth allowedRoles={['admin']}><SettingsPage /></RequireAuth>}
+      />
+
+      <Route path="/mentor" element={<Navigate to="/mentor/dashboard" replace />} />
+      <Route
+        path="/mentor/dashboard"
+        element={<RequireAuth allowedRoles={['mentor']}><MentorDashboardPage /></RequireAuth>}
+      />
+      <Route
+        path="/mentor/students"
+        element={<RequireAuth allowedRoles={['mentor']}><MentorStudentsPage /></RequireAuth>}
+      />
+      <Route
+        path="/mentor/feedback"
+        element={<RequireAuth allowedRoles={['mentor']}><MentorFeedbackPage /></RequireAuth>}
+      />
+      <Route
+        path="/mentor/profile"
+        element={<RequireAuth allowedRoles={['mentor']}><MentorProfilePage /></RequireAuth>}
+      />
+      <Route
+        path="/admin/pairings"
+        element={<RequireAuth allowedRoles={['admin']}><PairingsPage /></RequireAuth>}
+      />
+      <Route
+        path="/admin/audit-logs"
+        element={<RequireAuth allowedRoles={['admin']}><AuditLogsPage /></RequireAuth>}
       />
     </Routes>
   );

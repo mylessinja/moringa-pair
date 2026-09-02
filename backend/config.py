@@ -1,11 +1,17 @@
 import os
-from dotenv import load_dotenv
 
-load_dotenv()
+BASE_DIR = os.path.abspath(os.path.dirname(__file__))
 
 
 class Config:
-    # A local database keeps the API runnable before deployment variables exist.
-    SQLALCHEMY_DATABASE_URI = os.getenv("DATABASE_URL", "sqlite:///moringa_pair.db")
+    SECRET_KEY = os.environ.get("SECRET_KEY", "dev-secret-change-me")
+    SQLALCHEMY_DATABASE_URI = os.environ.get(
+        "DATABASE_URL",
+        "sqlite:///" + os.path.join(BASE_DIR, "instance", "moringa_pair.db"),
+    )
     SQLALCHEMY_TRACK_MODIFICATIONS = False
-    JWT_SECRET_KEY = os.getenv("JWT_SECRET_KEY", "development-only-secret")
+    JWT_SECRET_KEY = os.environ.get(
+        "JWT_SECRET_KEY",
+        "jwt-dev-secret-change-me-use-at-least-32-chars!!",
+    )
+    GOOGLE_CLIENT_ID = os.environ.get("GOOGLE_CLIENT_ID", "")
