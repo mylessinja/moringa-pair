@@ -55,16 +55,8 @@ export default function MentorLayout({ children, eyebrow, title, description }) 
         onMouseLeave={() => setSidebarOpen(false)}
       >
         <div>
-          <div className="flex items-center justify-between px-4 py-4">
-            <div className="flex items-center gap-2.5">
-              <div className="flex h-8 w-8 items-center justify-center rounded-md bg-primary text-xs font-bold text-white">
-                M
-              </div>
-              <div>
-                <p className="text-sm font-semibold text-zinc-900 dark:text-zinc-100">Mentor</p>
-                <p className="text-[11px] text-zinc-400 dark:text-zinc-500">Cohort Mentor Access</p>
-              </div>
-            </div>
+        <div className="flex items-center justify-between px-4 py-4">
+          <Logo label="Mentor" subtitle="Cohort Mentor Access" />
             <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => setSidebarOpen(false)}>
               <PanelLeftClose className="h-4 w-4 text-gray-400 dark:text-zinc-500" />
             </Button>

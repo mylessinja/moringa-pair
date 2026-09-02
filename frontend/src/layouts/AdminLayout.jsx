@@ -116,15 +116,7 @@ export default function AdminLayout({ children, pageTitle, pageDescription }) {
         onMouseLeave={() => setSidebarOpen(false)}
       >
         <div className="flex items-center justify-between px-4 py-4">
-          <div className="flex items-center gap-2.5">
-            <div className="flex h-8 w-8 items-center justify-center rounded-md bg-primary text-xs font-bold text-white">
-              M
-            </div>
-            <div>
-              <p className="text-sm font-semibold text-zinc-900 dark:text-zinc-100">System Admin</p>
-              <p className="text-[11px] text-zinc-400 dark:text-zinc-500">Institutional Access</p>
-            </div>
-          </div>
+          <Logo label="System Admin" subtitle="Institutional Access" />
           <Button
             variant="ghost"
             size="icon"

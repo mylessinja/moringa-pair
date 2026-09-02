@@ -47,16 +47,8 @@ export default function StudentLayout({ children, eyebrow, title, avatarInitials
         onMouseLeave={() => setSidebarOpen(false)}
       >
         <div>
-          <div className="flex items-center justify-between px-4 py-4">
-            <div className="flex items-center gap-2.5">
-              <div className="flex h-8 w-8 items-center justify-center rounded-md bg-primary text-xs font-bold text-white">
-                S
-              </div>
-              <div>
-                <p className="text-sm font-semibold text-zinc-900 dark:text-zinc-100">Student</p>
-                <p className="text-[11px] text-zinc-400 dark:text-zinc-500">Learner Access</p>
-              </div>
-            </div>
+        <div className="flex items-center justify-between px-4 py-4">
+          <Logo label="Student" subtitle="Learner Access" mark="S" />
             <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => setSidebarOpen(false)}>
               <PanelLeftClose className="h-4 w-4 text-gray-400 dark:text-zinc-500" />
             </Button>
