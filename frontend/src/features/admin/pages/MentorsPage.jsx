@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import AdminLayout from '../../../layouts/AdminLayout';
 import MentorStats from '../components/MentorStats';
 import MentorsTable from '../components/MentorsTable';
-import { adminApi } from '@/services/adminApi';
+import { getMentors, updateMentorStatus } from '../../../services/adminService';
 
 export default function MentorsPage() {
   const [search, setSearch] = useState('');
@@ -13,16 +13,26 @@ export default function MentorsPage() {
   const load = () => {
     setLoading(true);
     setError('');
-    adminApi
-      .mentors()
-      .then((data) => setMentors(data.mentors || []))
-      .catch((err) => setError(err.message || 'Failed to load mentors'))
+    getMentors()
+      .then((data) => setMentors(data || []))
+      .catch((err) => setError(err.response?.data?.error || err.message || 'Failed to load mentors'))
       .finally(() => setLoading(false));
   };
 
   useEffect(() => {
     load();
   }, []);
+
+  async function handleStatusChange(mentorId, newStatus) {
+    const previous = mentors;
+    setMentors((current) => current.map((m) => (m.id === mentorId ? { ...m, status: newStatus } : m)));
+    try {
+      await updateMentorStatus(mentorId, newStatus);
+    } catch (err) {
+      setMentors(previous);
+      setError(err.response?.data?.error || 'Could not update mentor status.');
+    }
+  }
 
   const filtered = useMemo(() => {
     const q = search.toLowerCase();
@@ -47,7 +57,7 @@ export default function MentorsPage() {
           placeholder="Search mentors by name or expertise"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          className="w-72 rounded-md border border-gray-200 px-4 py-2 text-sm"
+          className="w-72 rounded-md border border-border px-4 py-2 text-sm"
         />
         <MentorStats total={total} active={active} pending={pending} />
       </div>
@@ -56,11 +66,11 @@ export default function MentorsPage() {
         <p className="mb-3 rounded-md bg-red-50 px-3 py-2 text-sm text-red-600">{error}</p>
       )}
       {loading ? (
-        <p className="text-sm text-gray-500">Loading mentors…</p>
+        <p className="text-sm text-muted-foreground">Loading mentors…</p>
       ) : (
-        <div className="rounded-lg border border-gray-200 bg-white px-4">
-          <MentorsTable mentors={filtered} />
-          <div className="py-3 text-sm text-gray-500">
+        <div className="rounded-lg border border-border bg-card px-4">
+          <MentorsTable mentors={filtered} onStatusChange={handleStatusChange} />
+          <div className="py-3 text-sm text-muted-foreground">
             Showing {filtered.length} of {total} mentors
           </div>
         </div>

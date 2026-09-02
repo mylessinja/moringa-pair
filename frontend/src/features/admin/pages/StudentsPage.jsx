@@ -3,7 +3,7 @@ import AdminLayout from '../../../layouts/AdminLayout';
 import { Button } from '@/components/ui/button';
 import StudentStats from '../components/StudentStats';
 import StudentsTable from '../components/StudentsTable';
-import { adminApi } from '@/services/adminApi';
+import { getStudents } from '../../../services/adminService';
 
 export default function StudentsPage() {
   const [search, setSearch] = useState('');
@@ -14,13 +14,12 @@ export default function StudentsPage() {
   useEffect(() => {
     let cancelled = false;
     setLoading(true);
-    adminApi
-      .students()
+    getStudents()
       .then((data) => {
-        if (!cancelled) setStudents(data.students || []);
+        if (!cancelled) setStudents(data || []);
       })
       .catch((err) => {
-        if (!cancelled) setError(err.message || 'Failed to load students');
+        if (!cancelled) setError(err.response?.data?.error || err.message || 'Failed to load students');
       })
       .finally(() => {
         if (!cancelled) setLoading(false);
@@ -62,7 +61,7 @@ export default function StudentsPage() {
           placeholder="Search students by name or email..."
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          className="ml-auto w-72 rounded-md border border-gray-200 px-4 py-2 text-sm"
+          className="ml-auto w-72 rounded-md border border-border px-4 py-2 text-sm"
         />
       </div>
 
@@ -70,11 +69,11 @@ export default function StudentsPage() {
         <p className="mb-3 rounded-md bg-red-50 px-3 py-2 text-sm text-red-600">{error}</p>
       )}
       {loading ? (
-        <p className="text-sm text-gray-500">Loading students…</p>
+        <p className="text-sm text-muted-foreground">Loading students…</p>
       ) : (
-        <div className="rounded-lg border border-gray-200 bg-white px-4">
+        <div className="rounded-lg border border-border bg-card px-4">
           <StudentsTable students={visible} />
-          <div className="flex items-center justify-between py-3 text-sm text-gray-500">
+          <div className="flex items-center justify-between py-3 text-sm text-muted-foreground">
             <span>
               Showing {visible.length} of {totalStudents} students
             </span>
