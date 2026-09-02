@@ -62,18 +62,11 @@ const getCurrentPairing = async () => {
 
     const pairing = pairingResponse.data;
 
-    // Get partner details
-    const partnerResponse = await axios.get(`${API_BASE_URL}/partner`, {
-      headers: { Authorization: `Bearer ${token}` },
-    });
-
-    const partner = partnerResponse.data;
-
     return {
       id: pairing.id,
       week: pairing.week,
-      partner: partner.name,
-      partnerEmail: partner.email,
+      partner: pairing.partner_name,
+      partnerEmail: pairing.partner_email,
       cohort: pairing.cohort,
       focus: pairing.focus,
       status: pairing.status,
@@ -101,7 +94,7 @@ const getPairingHistory = async () => {
       id: pairing.id,
       week: pairing.week,
       partner: pairing.partner_name,
-      partnerEmail: pairing.partner_id, // Note: might need adjustment based on actual response
+      partnerEmail: pairing.partner_email,
       cohort: pairing.cohort,
       focus: pairing.focus,
       status: pairing.status,

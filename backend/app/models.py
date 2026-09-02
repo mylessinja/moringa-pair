@@ -119,6 +119,8 @@ class Pairing(db.Model):
             "partner_id": self.partner_id,
             "student_name": self.student.name if self.student else None,
             "partner_name": self.partner.name if self.partner else None,
+            "student_email": self.student.email if self.student else None,
+            "partner_email": self.partner.email if self.partner else None,
             "week": self.week.isoformat() if self.week else None,
             "cohort": self.cohort,
             "focus": self.focus,
