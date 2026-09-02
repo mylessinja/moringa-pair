@@ -20,7 +20,7 @@ def create_app():
     jwt.init_app(app)
     CORS(app)
 
-    from app.models import User
+    from app.models import User, Pairing, Notification
 
     @app.route("/")
     def health_check():
