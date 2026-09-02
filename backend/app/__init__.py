@@ -21,6 +21,10 @@ def create_app():
     CORS(app)
 
     from app.models import User, Pairing, Notification
+    from app.routes.pairings import pairings_bp
+
+    # Register blueprints
+    app.register_blueprint(pairings_bp)
 
     @app.route("/")
     def health_check():
