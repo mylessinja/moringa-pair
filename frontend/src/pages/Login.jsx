@@ -51,7 +51,7 @@ const Login = () => {
   return (
     <AuthLayout
       eyebrow="Welcome back"
-      title="Student Log in"
+      title="Log in to MoringaPair"
       subtitle="Check your weekly pairing and continue your assessment."
       asideQuote="Students are paired weekly based on skill level and learning goals."
     >
