@@ -22,10 +22,7 @@ const LandingPage = () => {
           </div>
           <div className="flex items-center gap-3">
             <Button variant="ghost" asChild>
-              <Link to="/login">Student Log in</Link>
-            </Button>
-            <Button variant="ghost" asChild>
-              <Link to="/admin/login">Admin Log in</Link>
+              <Link to="/login">Log in</Link>
             </Button>
             <Button asChild>
               <Link to="/signup">
