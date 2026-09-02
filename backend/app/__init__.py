@@ -35,6 +35,7 @@ def create_app(config_class=Config):
     from routes.pairings import pairings_bp
     from routes.notifications import notifications_bp
     from routes.feedback import feedback_bp
+    from routes.analytics import analytics_bp
 
     app.register_blueprint(mentors_bp)
     app.register_blueprint(auth_bp)
@@ -42,8 +43,7 @@ def create_app(config_class=Config):
     app.register_blueprint(pairings_bp)
     app.register_blueprint(notifications_bp)
     app.register_blueprint(feedback_bp)
-    app.register_blueprint(notifications_bp)
-    app.register_blueprint(feedback_bp)
+    app.register_blueprint(analytics_bp)
 
     with app.app_context():
         db.create_all()
