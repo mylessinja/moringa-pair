@@ -4,7 +4,6 @@ import { Button } from '@/components/ui/button'
 import { useDispatch } from 'react-redux'
 import { Input } from '@/components/ui/input'
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
-import { Separator } from '@/components/ui/separator'
 import Logo from '@/components/Logo'
 import SidebarThemeToggle from '@/components/SidebarThemeToggle'
 import {
@@ -31,6 +30,11 @@ import {
   CheckCheck,
 } from 'lucide-react'
 import { logout } from '../store/authSlice'
+import {
+  listNotifications,
+  markNotificationRead,
+  markAllNotificationsRead,
+} from '../services/notificationService'
 
 const navItems = [
   { to: '/admin/dashboard', label: 'Dashboard', icon: LayoutDashboard },
@@ -42,37 +46,26 @@ const navItems = [
   { to: '/admin/audit-logs', label: 'Audit Logs', icon: FileBarChart },
 ]
 
-const initialNotifications = [
-  {
-    id: 1,
-    title: 'New mentor application',
-    body: 'Caleb Kiprotich submitted a mentor application for review.',
-    time: '12 min ago',
-    read: false,
-  },
-  {
-    id: 2,
-    title: 'Weekly pairing published',
-    body: 'SE-Cohort 34 pairings for this week are live.',
-    time: '1 hour ago',
-    read: false,
-  },
-  {
-    id: 3,
-    title: 'Cohort created',
-    body: "Spring 2024 – Full Stack was initialized with 32 students.",
-    time: 'Yesterday',
-    read: true,
-  },
-]
-
 export default function AdminLayout({ children, pageTitle, pageDescription }) {
   const navigate = useNavigate()
   const dispatch = useDispatch()
   const [sidebarOpen, setSidebarOpen] = useState(false)
-  const [notifications, setNotifications] = useState(initialNotifications)
+  const [notifications, setNotifications] = useState([])
+  const [notifLoading, setNotifLoading] = useState(false)
 
   const unreadCount = notifications.filter((n) => !n.read).length
+
+  const loadNotifications = () => {
+    setNotifLoading(true)
+    listNotifications()
+      .then(setNotifications)
+      .catch(() => setNotifications([]))
+      .finally(() => setNotifLoading(false))
+  }
+
+  useEffect(() => {
+    loadNotifications()
+  }, [])
 
   useEffect(() => {
     const EDGE = 10
@@ -84,13 +77,21 @@ export default function AdminLayout({ children, pageTitle, pageDescription }) {
   }, [])
 
   const markAllRead = () => {
-    setNotifications((prev) => prev.map((n) => ({ ...n, read: true })))
+    markAllNotificationsRead()
+      .then(() => {
+        setNotifications((prev) => prev.map((n) => ({ ...n, read: true })))
+      })
+      .catch(() => {})
   }
 
   const markRead = (id) => {
-    setNotifications((prev) =>
-      prev.map((n) => (n.id === id ? { ...n, read: true } : n))
-    )
+    markNotificationRead(id)
+      .then(() => {
+        setNotifications((prev) =>
+          prev.map((n) => (n.id === id ? { ...n, read: true } : n))
+        )
+      })
+      .catch(() => {})
   }
 
   return (
@@ -116,15 +117,7 @@ export default function AdminLayout({ children, pageTitle, pageDescription }) {
         onMouseLeave={() => setSidebarOpen(false)}
       >
         <div className="flex items-center justify-between px-4 py-4">
-          <div className="flex items-center gap-2.5">
-            <div className="flex h-8 w-8 items-center justify-center rounded-md bg-primary text-xs font-bold text-white">
-              M
-            </div>
-            <div>
-              <p className="text-sm font-semibold text-zinc-900 dark:text-zinc-100">System Admin</p>
-              <p className="text-[11px] text-zinc-400 dark:text-zinc-500">Institutional Access</p>
-            </div>
-          </div>
+          <Logo label="System Admin" subtitle="Institutional Access" />
           <Button
             variant="ghost"
             size="icon"
@@ -225,9 +218,15 @@ export default function AdminLayout({ children, pageTitle, pageDescription }) {
               <DropdownMenuContent align="end" className="w-[360px] p-0">
                 <div className="flex items-center justify-between border-b border-zinc-100 px-4 py-3 dark:border-zinc-800">
                   <div>
-                    <p className="text-sm font-semibold text-zinc-900 dark:text-zinc-100">Notifications</p>
+                    <p className="text-sm font-semibold text-zinc-900 dark:text-zinc-100">
+                      Notifications
+                    </p>
                     <p className="text-xs text-zinc-500 dark:text-zinc-400">
-                      {unreadCount === 0 ? 'You are all caught up' : `${unreadCount} unread`}
+                      {notifLoading
+                        ? 'Loading…'
+                        : unreadCount === 0
+                          ? 'You are all caught up'
+                          : `${unreadCount} unread`}
                     </p>
                   </div>
                   {unreadCount > 0 && (
@@ -244,6 +243,12 @@ export default function AdminLayout({ children, pageTitle, pageDescription }) {
                 </div>
 
                 <div className="max-h-[320px] overflow-y-auto">
+                  {notifLoading && (
+                    <p className="px-4 py-6 text-sm text-zinc-500">Loading…</p>
+                  )}
+                  {!notifLoading && notifications.length === 0 && (
+                    <p className="px-4 py-6 text-sm text-zinc-500">No notifications yet.</p>
+                  )}
                   {notifications.map((n) => (
                     <button
                       key={n.id}
@@ -259,18 +264,28 @@ export default function AdminLayout({ children, pageTitle, pageDescription }) {
                         }`}
                       />
                       <div className="min-w-0 flex-1">
-                        <p className="text-sm font-medium text-zinc-900 dark:text-zinc-100">{n.title}</p>
-                        <p className="mt-0.5 line-clamp-2 text-xs text-zinc-500 dark:text-zinc-400">{n.body}</p>
-                    <p className="mt-1 text-[11px] text-zinc-400 dark:text-zinc-500">{n.time}</p>
+                        <p className="text-sm font-medium text-zinc-900 dark:text-zinc-100">
+                          {n.title}
+                        </p>
+                        <p className="mt-0.5 line-clamp-2 text-xs text-zinc-500 dark:text-zinc-400">
+                          {n.body}
+                        </p>
+                        <p className="mt-1 text-[11px] text-zinc-400 dark:text-zinc-500">
+                          {n.time}
+                        </p>
                       </div>
                     </button>
                   ))}
                 </div>
-
               </DropdownMenuContent>
             </DropdownMenu>
 
-            <Button variant="ghost" size="icon" className="h-9 w-9 text-zinc-600 dark:text-zinc-400" aria-label="Help">
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-9 w-9 text-zinc-600 dark:text-zinc-400"
+              aria-label="Help"
+            >
               <HelpCircle className="h-4 w-4" strokeWidth={1.75} />
             </Button>
 
@@ -305,7 +320,10 @@ export default function AdminLayout({ children, pageTitle, pageDescription }) {
                 </DropdownMenuItem>
                 <DropdownMenuItem
                   className="text-red-600 focus:text-red-600"
-                  onClick={() => navigate('/login')}
+                  onClick={() => {
+                    dispatch(logout())
+                    navigate('/login')
+                  }}
                 >
                   Sign out
                 </DropdownMenuItem>
@@ -316,9 +334,13 @@ export default function AdminLayout({ children, pageTitle, pageDescription }) {
 
         <main className="flex-1 px-8 py-8">
           <div className="mb-8">
-            <h1 className="text-xl font-semibold tracking-tight text-zinc-900 dark:text-zinc-100">{pageTitle}</h1>
+            <h1 className="text-xl font-semibold tracking-tight text-zinc-900 dark:text-zinc-100">
+              {pageTitle}
+            </h1>
             {pageDescription && (
-              <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">{pageDescription}</p>
+              <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
+                {pageDescription}
+              </p>
             )}
           </div>
           {children}

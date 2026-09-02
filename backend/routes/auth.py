@@ -8,7 +8,7 @@ from flask_jwt_extended import (
     jwt_required,
 )
 
-from models import db, User, MentorProfile
+from models import db, User, MentorProfile, Pairing
 
 auth_bp = Blueprint("auth", __name__, url_prefix="/api/auth")
 
@@ -125,6 +125,45 @@ def google_auth():
     return jsonify({"access_token": access, "user": user.to_dict()}), 200
 
 
+def _student_bootstrap(user):
+    """Cohorts + latest pairing for student dashboard/profile."""
+    cohorts = []
+    for mem in user.cohort_memberships:
+        if mem.member_role == "student" and mem.cohort:
+            cohorts.append(
+                {
+                    "id": mem.cohort.id,
+                    "name": mem.cohort.name,
+                    "track": mem.cohort.track,
+                    "status": mem.cohort.status,
+                    "mastery": mem.mastery,
+                }
+            )
+
+    current_pairing = None
+    row = (
+        Pairing.query.filter(
+            (Pairing.student_a_id == user.id) | (Pairing.student_b_id == user.id)
+        )
+        .order_by(Pairing.week_start.desc())
+        .first()
+    )
+    if row:
+        data = row.to_dict()
+        is_a = row.student_a_id == user.id
+        current_pairing = {
+            **data,
+            "partner": data["student_b"] if is_a else data["student_a"],
+            "partner_id": row.student_b_id if is_a else row.student_a_id,
+        }
+
+    return {
+        "user": user.to_dict(),
+        "cohorts": cohorts,
+        "current_pairing": current_pairing,
+    }
+
+
 @auth_bp.get("/me")
 @jwt_required()
 def me():
@@ -132,4 +171,13 @@ def me():
     user = User.query.get(user_id)
     if not user:
         return jsonify({"error": "user not found"}), 404
-    return jsonify({"user": user.to_dict(include_mentor=(user.role == "mentor"))}), 200
+
+    if user.role == "student":
+        return jsonify(_student_bootstrap(user)), 200
+
+    payload = {
+        "user": user.to_dict(include_mentor=(user.role == "mentor")),
+        "cohorts": [],
+        "current_pairing": None,
+    }
+    return jsonify(payload), 200

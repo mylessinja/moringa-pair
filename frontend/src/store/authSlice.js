@@ -2,11 +2,18 @@ import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import authService from '../services/authService';
 
 const storedUser = localStorage.getItem('moringaPairUser');
+const hasToken = Boolean(localStorage.getItem('moringaPairToken'));
 let initialUser = null;
-try {
-  initialUser = storedUser ? JSON.parse(storedUser) : null;
-} catch {
+// Only restore user if a token exists — otherwise force re-login
+if (hasToken && storedUser) {
+  try {
+    initialUser = JSON.parse(storedUser);
+  } catch {
+    localStorage.removeItem('moringaPairUser');
+  }
+} else {
   localStorage.removeItem('moringaPairUser');
+  localStorage.removeItem('moringaPairToken');
 }
 
 export const signUpUser = createAsyncThunk(
@@ -35,16 +42,11 @@ export const loginUser = createAsyncThunk(
   }
 );
 
-// Used by Login.jsx on ft/backend-admin (Google button)
 export const googleLoginUser = createAsyncThunk(
   'auth/googleLoginUser',
-  async (payload, { rejectWithValue }) => {
+  async (idToken, { rejectWithValue }) => {
     try {
-      if (typeof authService.googleLogin === 'function') {
-        return await authService.googleLogin(payload);
-      }
-      // Fallback if googleLogin is not implemented yet
-      throw new Error('Google login is not configured on the server.');
+      return await authService.googleLogin(idToken);
     } catch (err) {
       return rejectWithValue(
         err.response?.data?.error || err.message || 'Google login failed'
@@ -68,8 +70,7 @@ const authSlice = createSlice({
       state.user = null;
       state.status = 'idle';
       state.error = null;
-      localStorage.removeItem('moringaPairUser');
-      localStorage.removeItem('moringaPairToken');
+      authService.logout();
     },
   },
   extraReducers: (builder) => {

@@ -10,6 +10,7 @@ from models.settings import Setting
 from models.notification import Notification
 from models.feedback import Feedback
 from models.audit_log import AuditLog
+from models.resource import Resource
 
 __all__ = [
     "db",
@@ -20,4 +21,8 @@ __all__ = [
     "CohortMember",
     "Pairing",
     "Setting",
+    "Notification",
+    "Feedback",
+    "AuditLog",
+    "Resource",
 ]

@@ -1,33 +1,18 @@
 import axios from 'axios';
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
-
-const DEMO_USERS = {
-  'admin@moringapair.com': {
-    password: 'admin123',
-    user: { id: 1, name: 'System Admin', email: 'admin@moringapair.com', role: 'admin', status: 'active' },
-  },
-  'a.byrone@moringapair.com': {
-    password: 'mentor123',
-    user: { id: 2, name: 'Albert Byrone', email: 'a.byrone@moringapair.com', role: 'mentor', status: 'active' },
-  },
-  'v.sinja@moringapair.com': {
-    password: 'student123',
-    user: { id: 6, name: 'Victor Sinja', email: 'v.sinja@moringapair.com', role: 'student', status: 'active' },
-  },
-};
-
-const isBackendUnreachable = (error) =>
-  error.code === 'ERR_NETWORK' || !error.response;
+const API_URL =
+  (import.meta.env.VITE_API_URL || 'http://127.0.0.1:5000').replace(/\/$/, '') +
+  '/api';
 
 const storeSession = (data) => {
-  if (data?.access_token) {
-    localStorage.setItem('moringaPairToken', data.access_token);
+  if (!data?.access_token) {
+    throw new Error('Server did not return an access token. Is the backend running?');
   }
-  if (data?.user) {
+  localStorage.setItem('moringaPairToken', data.access_token);
+  if (data.user) {
     localStorage.setItem('moringaPairUser', JSON.stringify(data.user));
   }
-  return data?.user;
+  return data.user;
 };
 
 const signUp = async (userData) => {
@@ -35,16 +20,10 @@ const signUp = async (userData) => {
     const response = await axios.post(`${API_URL}/auth/signup`, userData);
     return storeSession(response.data);
   } catch (error) {
-    if (isBackendUnreachable(error)) {
-      const offlineUser = {
-        id: `demo-${Date.now()}`,
-        name: userData.name || 'Demo User',
-        email: (userData.email || '').toLowerCase(),
-        role: userData.role || 'student',
-        status: 'active',
-      };
-      localStorage.setItem('moringaPairUser', JSON.stringify(offlineUser));
-      return offlineUser;
+    if (error.code === 'ERR_NETWORK' || !error.response) {
+      throw new Error(
+        'Cannot reach the API at ' + API_URL + '. Start the Flask backend.'
+      );
     }
     const message =
       error.response?.data?.error ||
@@ -62,14 +41,10 @@ const login = async (credentials) => {
     });
     return storeSession(response.data);
   } catch (error) {
-    if (isBackendUnreachable(error)) {
-      const normalizedEmail = (credentials.email || '').trim().toLowerCase();
-      const demoUser = DEMO_USERS[normalizedEmail];
-      if (demoUser && demoUser.password === credentials.password) {
-        localStorage.setItem('moringaPairUser', JSON.stringify(demoUser.user));
-        return demoUser.user;
-      }
-      throw new Error('Backend is not running. Try admin@moringapair.com / admin123');
+    if (error.code === 'ERR_NETWORK' || !error.response) {
+      throw new Error(
+        'Cannot reach the API. Start Flask (python3 run.py) then try again.'
+      );
     }
     const message =
       error.response?.data?.error ||
@@ -79,9 +54,39 @@ const login = async (credentials) => {
   }
 };
 
+const googleLogin = async (idToken) => {
+  try {
+    const response = await axios.post(`${API_URL}/auth/google`, {
+      id_token: idToken,
+    });
+    return storeSession(response.data);
+  } catch (error) {
+    if (error.code === 'ERR_NETWORK' || !error.response) {
+      throw new Error('Cannot reach the API for Google login.');
+    }
+    const message =
+      error.response?.data?.error ||
+      error.response?.data?.message ||
+      'Google login failed';
+    throw Object.assign(new Error(message), { response: error.response });
+  }
+};
+
 const logout = () => {
   localStorage.removeItem('moringaPairToken');
   localStorage.removeItem('moringaPairUser');
 };
 
-export default { signUp, login, logout, googleLogin: async () => { throw new Error('Google login not configured'); }};
+/** True only if we have both user snapshot and JWT */
+const hasValidSession = () => {
+  return Boolean(localStorage.getItem('moringaPairToken'));
+};
+
+export default {
+  signUp,
+  login,
+  logout,
+  googleLogin,
+  hasValidSession,
+  storeSession,
+};

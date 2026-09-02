@@ -1,259 +1,211 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import StudentLayout from '../layouts/StudentLayout';
 import { Card, CardContent } from '../components/ui/card';
 import { Button } from '../components/ui/button';
-import { Input } from '../components/ui/input';
-import { Badge } from '../components/ui/badge';
-import { X, Circle, Search } from 'lucide-react';
-import { getDemoStudents } from '../services/dummyJsonService';
+import { X, Circle } from 'lucide-react';
+import {
+  getMe,
+  getPairingHistory,
+  mapCurrentPairing,
+} from '../services/studentService';
+import { listMyResources } from '../services/resourceService';
 
-const MODULES = ['React & UI', 'Data Structures', 'Python Backend'];
-const STATUSES = ['Active Pair', 'Unpaired', 'At-Risk'];
-const TONES = ['green', 'blue', 'orange'];
-
-const TONE_STYLES = {
-  green: 'bg-green-100 dark:bg-green-500/15 text-green-700 dark:text-green-400',
-  blue: 'bg-blue-100 dark:bg-blue-500/15 text-blue-700 dark:text-blue-400',
-  orange: 'bg-orange-100 dark:bg-orange-500/15 text-orange-700 dark:text-orange-400',
-};
-
-const STATUS_STYLES = {
-  'Active Pair': 'border-green-200 bg-green-50 dark:bg-green-500/15 text-green-700 dark:text-green-400',
-  Unpaired: 'border-amber-200 bg-amber-50 dark:bg-amber-500/15 text-amber-700 dark:text-amber-400',
-  'At-Risk': 'border-red-200 bg-red-50 dark:bg-red-500/15 text-red-700 dark:text-red-400',
-};
-
-const pairings = [
-  { week: 'week-1', date: 'Week 1', partner: 'Sarah Kim', initials: 'SK', focus: 'Frontend architecture' },
-  { week: 'week-2', date: 'Week 2', partner: 'Samuel Otieno', initials: 'SO', focus: 'API integration' },
-  { week: 'week-3', date: 'Week 3', partner: 'Maya Kibet', initials: 'MK', focus: 'Debugging workflows' },
-];
+function initials(name = '') {
+  return (
+    name
+      .split(' ')
+      .filter(Boolean)
+      .map((p) => p[0])
+      .join('')
+      .slice(0, 2)
+      .toUpperCase() || '?'
+  );
+}
 
 function Dashboard() {
-  const user = useSelector((state) => state.auth.user);
-  const [search, setSearch] = useState('');
-  const [selectedStudents, setSelectedStudents] = useState([]);
-  const [students, setStudents] = useState([]);
-  const [visibleCount, setVisibleCount] = useState(6);
+  const authUser = useSelector((s) => s.auth.user);
+  const [me, setMe] = useState(null);
+  const [history, setHistory] = useState([]);
+  const [resources, setResources] = useState([]);
   const [status, setStatus] = useState('loading');
   const [error, setError] = useState('');
   const [showBanner, setShowBanner] = useState(true);
 
   useEffect(() => {
-    const loadStudents = async () => {
-      try {
-        const demoStudents = await getDemoStudents();
-        setStudents(
-          demoStudents.map((student, index) => ({
-            ...student,
-            initials: student.name.split(' ').map((part) => part[0]).join(''),
-            module: MODULES[index % MODULES.length],
-            status: STATUSES[index % STATUSES.length],
-            score: `${student.mastery}%`,
-            change: `${index % 3 === 0 ? '+' : index % 3 === 1 ? '' : '-'}${(index % 5) + 1}%`,
-            partner: index % 3 === 0 ? 'Assigned mentor' : undefined,
-            tone: TONES[index % TONES.length],
-          }))
-        );
+    let cancelled = false;
+    setStatus('loading');
+    getMe()
+      .then(async (data) => {
+        if (cancelled) return;
+        setMe(data);
+        const id = data.user?.id;
+        if (id) {
+          const hist = await getPairingHistory(id);
+          if (!cancelled) setHistory(hist);
+        }
+        try {
+          const res = await listMyResources();
+          if (!cancelled) setResources(res);
+        } catch {
+          if (!cancelled) setResources([]);
+        }
         setStatus('succeeded');
-      } catch (requestError) {
-        setError(requestError.message);
+      })
+      .catch((err) => {
+        if (cancelled) return;
+        setError(err.response?.data?.error || err.message || 'Failed to load');
         setStatus('failed');
-      }
+      });
+    return () => {
+      cancelled = true;
     };
-
-    loadStudents();
   }, []);
 
-  const filteredStudents = useMemo(
-    () =>
-      students
-        .filter((student) => `${student.name} ${student.email}`.toLowerCase().includes(search.toLowerCase()))
-        .slice(0, visibleCount),
-    [search, students, visibleCount]
-  );
-
-  const toggleStudent = (name) =>
-    setSelectedStudents((current) =>
-      current.includes(name) ? current.filter((student) => student !== name) : [...current, name]
-    );
-
-  const currentPair = pairings[0];
+  const user = me?.user || authUser;
+  const pairing = mapCurrentPairing(me?.currentPairing);
+  const primaryCohort = me?.cohorts?.[0];
+  const avatarInitials = initials(user?.name);
 
   return (
-    <StudentLayout eyebrow="Student workspace" title={`Welcome, ${user?.name || 'there'}`}>
-      {showBanner && (
-        <div className="flex items-center gap-3 border-l-2 border-primary bg-muted px-4 py-3 mb-6">
-          <p className="text-sm text-foreground flex-1">Your pairing for this week is live.</p>
+    <StudentLayout
+      eyebrow="Student workspace"
+      title={`Welcome, ${user?.name || 'there'}`}
+      avatarInitials={avatarInitials}
+    >
+      {primaryCohort && (
+        <p className="mb-4 text-sm text-muted-foreground">
+          {primaryCohort.name}
+          {primaryCohort.mastery != null ? ` · Mastery ${primaryCohort.mastery}%` : ''}
+        </p>
+      )}
+
+      {showBanner && pairing && (
+        <div className="mb-6 flex items-center gap-3 border-l-2 border-primary bg-muted px-4 py-3">
+          <p className="flex-1 text-sm text-foreground">
+            Your pairing for this week is live.
+          </p>
           <button
-            onClick={() => setShowBanner(false)}
-            aria-label="Dismiss notification"
-            className="text-muted-foreground hover:text-muted-foreground"
             type="button"
+            onClick={() => setShowBanner(false)}
+            aria-label="Dismiss"
+            className="text-muted-foreground"
           >
-            <X className="w-4 h-4" />
+            <X className="h-4 w-4" />
           </button>
         </div>
       )}
 
-      <section id="current-pairing" className="mb-8">
-        <div className="flex items-center justify-between mb-4">
+      <section className="mb-8">
+        <div className="mb-4 flex items-center justify-between">
           <div>
-            <p className="text-xs font-medium uppercase tracking-wide text-primary mb-1">This week</p>
+            <p className="mb-1 text-xs font-medium uppercase tracking-wide text-primary">
+              This week
+            </p>
             <h2 className="text-lg font-bold text-foreground">My pairing</h2>
           </div>
-          <span className="inline-flex items-center gap-1.5 text-xs font-medium text-green-700 dark:text-green-400 bg-green-50 dark:bg-green-500/15 px-2.5 py-1 rounded-full">
-            <span className="w-1.5 h-1.5 rounded-full bg-green-500" />
-            Live
-          </span>
+          {pairing ? (
+            <span className="rounded-full bg-green-50 px-2.5 py-1 text-xs font-medium text-green-700 dark:bg-green-500/15 dark:text-green-400">
+              Live
+            </span>
+          ) : (
+            <span className="rounded-full bg-zinc-100 px-2.5 py-1 text-xs font-medium text-zinc-600 dark:bg-zinc-800">
+              Pending
+            </span>
+          )}
         </div>
 
-        {currentPair ? (
+        {status === 'loading' && (
+          <p className="text-sm text-muted-foreground">Loading…</p>
+        )}
+        {status === 'failed' && <p className="text-sm text-red-600">{error}</p>}
+
+        {status === 'succeeded' && pairing && (
           <Card>
-            <CardContent className="flex items-center gap-5 py-6">
-              <div className="w-14 h-14 rounded-full bg-primary/10 text-primary flex items-center justify-center text-lg font-semibold flex-shrink-0">
-                {currentPair.initials}
+            <CardContent className="flex flex-col gap-4 py-6 sm:flex-row sm:items-center">
+              <div className="flex h-14 w-14 items-center justify-center rounded-full bg-primary/10 text-lg font-semibold text-primary">
+                {initials(pairing.partner)}
               </div>
               <div className="flex-1">
-                <p className="text-xs text-muted-foreground mb-1">You are paired with</p>
-                <h3 className="text-lg font-bold text-foreground">{currentPair.partner}</h3>
-                <p className="text-sm text-primary font-medium">{currentPair.focus}</p>
-                <p className="text-sm text-muted-foreground mt-1">
-                  A chance to learn, share ideas, and make progress together.
+                <p className="text-xs text-muted-foreground">You are paired with</p>
+                <h3 className="text-lg font-bold">{pairing.partner}</h3>
+                <p className="text-sm font-medium text-primary">{pairing.focus}</p>
+                <p className="mt-1 text-sm text-muted-foreground">
+                  {pairing.week ? `Week of ${pairing.week}` : ''}
                 </p>
               </div>
-              <Button variant="outline">View profile</Button>
+              <Button variant="outline" asChild>
+                <Link to="/pairing">Open pairing</Link>
+              </Button>
             </CardContent>
           </Card>
-        ) : (
+        )}
+
+        {status === 'succeeded' && !pairing && (
           <Card className="border-dashed">
-            <CardContent className="text-center py-10">
-              <Circle className="w-6 h-6 mx-auto text-gray-300 dark:text-zinc-600 dark:text-zinc-600 mb-2" />
-              <h3 className="font-bold text-foreground mb-1">No pairing yet</h3>
+            <CardContent className="py-10 text-center">
+              <Circle className="mx-auto mb-2 h-6 w-6 text-zinc-300" />
+              <h3 className="mb-1 font-bold">No pairing yet</h3>
               <p className="text-sm text-muted-foreground">
-                The TM has not published a pairing for this week. Check back soon.
+                Your mentor hasn&apos;t published this week&apos;s pairs yet.
               </p>
             </CardContent>
           </Card>
         )}
       </section>
 
-      <section id="students">
-        <div className="flex items-center gap-3 mb-4 flex-wrap">
-          <div className="relative flex-1 min-w-[220px] max-w-sm">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-            <Input
-              value={search}
-              onChange={(event) => setSearch(event.target.value)}
-              placeholder="Search by name or email..."
-              aria-label="Search by name or email"
-              className="pl-9"
-            />
-          </div>
-          <select aria-label="Filter by cohort" className="px-3 py-2 rounded-md border border-border text-sm text-muted-foreground">
-            <option>All Cohorts</option>
-          </select>
-          <select aria-label="Filter by module" className="px-3 py-2 rounded-md border border-border text-sm text-muted-foreground">
-            <option>All Modules</option>
-          </select>
-          <select aria-label="Filter by status" className="px-3 py-2 rounded-md border border-border text-sm text-muted-foreground">
-            <option>Any Status</option>
-          </select>
+      <section className="mb-8">
+        <div className="mb-4 flex items-center justify-between">
+          <h2 className="text-lg font-bold">Recent pairings</h2>
+          <Button variant="outline" size="sm" asChild>
+            <Link to="/pairing/history">Full history</Link>
+          </Button>
         </div>
-
-        <div className="flex items-center justify-between mb-4">
-          <div>
-            <h2 className="text-lg font-bold text-foreground flex items-center gap-2">
-              Students
-              <span className="inline-flex items-center justify-center min-w-[22px] h-[22px] px-1.5 rounded-full bg-primary/10 text-primary text-xs font-bold">
-                {students.length}
-              </span>
-            </h2>
-            <p className="text-sm text-muted-foreground">Showing students across all active cohorts</p>
-          </div>
-        </div>
-
-        {status === 'loading' && <p className="text-sm text-muted-foreground py-6">Loading students...</p>}
-        {status === 'failed' && <p className="text-sm text-red-600 dark:text-red-400 py-6">{error}</p>}
-
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          {filteredStudents.map((student) => (
-            <Card key={student.id}>
-              <CardContent className="pt-5">
-                <div className="flex items-center justify-between mb-3">
-                  <input
-                    type="checkbox"
-                    checked={selectedStudents.includes(student.name)}
-                    onChange={() => toggleStudent(student.name)}
-                    aria-label={`Select ${student.name}`}
-                    className="w-3.5 h-3.5 accent-primary"
-                  />
-                  <button
-                    type="button"
-                    aria-label={`More options for ${student.name}`}
-                    className="text-muted-foreground hover:text-muted-foreground text-xs font-medium"
-                  >
-                    More
-                  </button>
-                </div>
-
-                <div className="flex flex-col items-center text-center mb-3">
-                  <div
-                    className={`w-12 h-12 rounded-full flex items-center justify-center text-sm font-semibold mb-2 ${TONE_STYLES[student.tone]}`}
-                  >
-                    {student.initials}
-                  </div>
-                  <h3 className="font-bold text-foreground">{student.name}</h3>
-                  <p className="text-xs text-muted-foreground">{student.email}</p>
-                </div>
-
-                <div className="flex items-center justify-center gap-2 mb-4">
-                  <Badge variant="outline" className="border-border bg-muted text-muted-foreground">
-                    {student.cohort}
-                  </Badge>
-                  <Badge variant="outline" className={STATUS_STYLES[student.status]}>
-                    {student.status}
-                  </Badge>
-                </div>
-
-                <div className="grid grid-cols-2 gap-3 py-3 border-t border-border text-sm">
-                  <div>
-                    <p className="text-xs text-muted-foreground mb-0.5">Focus</p>
-                    <p className="font-medium text-foreground truncate">{student.module}</p>
-                  </div>
-                  <div className="text-right">
-                    <p className="text-xs text-muted-foreground mb-0.5">Latest Score</p>
-                    <p className="font-semibold text-foreground">
-                      {student.score}{' '}
-                      <span className={student.change.startsWith('-') ? 'text-red-600 dark:text-red-400 text-xs font-semibold' : 'text-green-600 dark:text-green-400 text-xs font-semibold'}>
-                        {student.change}
-                      </span>
-                    </p>
-                  </div>
-                </div>
-
-                <div className="flex items-center justify-between pt-3 border-t border-border text-sm">
-                  {student.partner ? (
-                    <span className="text-muted-foreground">Paired w/ {student.partner}</span>
-                  ) : (
-                    <span className="text-amber-600 dark:text-amber-400">Unpaired</span>
-                  )}
-                  <button type="button" className="text-primary font-medium hover:underline">
-                    View Profile
-                  </button>
-                </div>
+        {history.length === 0 && status === 'succeeded' && (
+          <p className="text-sm text-muted-foreground">No history yet.</p>
+        )}
+        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+          {history.slice(0, 6).map((p) => (
+            <Card key={p.id}>
+              <CardContent className="py-4">
+                <p className="text-xs text-muted-foreground">{p.week}</p>
+                <p className="font-semibold">{p.partner}</p>
+                <p className="text-sm text-muted-foreground">{p.focus}</p>
               </CardContent>
             </Card>
           ))}
         </div>
+      </section>
 
-        {visibleCount < students.length && (
-          <div className="text-center mt-6">
-            <Button variant="outline" onClick={() => setVisibleCount((count) => count + 6)}>
-              Load {students.length - visibleCount} More Students
-            </Button>
-          </div>
+      <section>
+        <h2 className="mb-3 text-lg font-bold">Study resources</h2>
+        {resources.length === 0 ? (
+          <p className="text-sm text-muted-foreground">
+            Your mentor hasn&apos;t published materials for your cohort yet.
+          </p>
+        ) : (
+          <ul className="space-y-2">
+            {resources.map((r) => (
+              <li key={r.id} className="rounded-lg border bg-card px-4 py-3">
+                <a
+                  href={r.url}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="font-medium text-primary hover:underline"
+                >
+                  {r.title}
+                </a>
+                <p className="text-xs text-muted-foreground">
+                  {r.cohort_name || 'Cohort'} · {r.resource_type}
+                  {r.week_label ? ` · ${r.week_label}` : ''}
+                </p>
+                {r.description && (
+                  <p className="mt-1 text-sm text-muted-foreground">{r.description}</p>
+                )}
+              </li>
+            ))}
+          </ul>
         )}
       </section>
     </StudentLayout>
