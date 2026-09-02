@@ -1,13 +1,48 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import authService from '../services/authService';
 
-const storedUser = localStorage.getItem('moringaPairUser');
+const safeStorage = {
+  getStorage() {
+    if (typeof window !== 'undefined' && window.localStorage) return window.localStorage;
+    if (typeof globalThis !== 'undefined' && globalThis.localStorage) return globalThis.localStorage;
+    return null;
+  },
+  get(key) {
+    const storage = this.getStorage();
+    if (!storage) return null;
+    try {
+      return storage.getItem(key);
+    } catch {
+      return null;
+    }
+  },
+  set(key, value) {
+    const storage = this.getStorage();
+    if (!storage) return;
+    try {
+      storage.setItem(key, value);
+    } catch {
+      // ignore storage quota or browser issues
+    }
+  },
+  remove(key) {
+    const storage = this.getStorage();
+    if (!storage) return;
+    try {
+      storage.removeItem(key);
+    } catch {
+      // ignore storage issues
+    }
+  },
+};
+
+const storedUser = safeStorage.get('moringaPairUser');
 let initialUser = null;
 
 try {
   initialUser = storedUser ? JSON.parse(storedUser) : null;
 } catch {
-  localStorage.removeItem('moringaPairUser');
+  safeStorage.remove('moringaPairUser');
 }
 
 export const signUpUser = createAsyncThunk(
@@ -51,7 +86,8 @@ const authSlice = createSlice({
       state.user = null;
       state.status = 'idle';
       state.error = null;
-      localStorage.removeItem('moringaPairUser');
+      safeStorage.remove('moringaPairUser');
+      safeStorage.remove('moringaPairToken');
     },
   },
   extraReducers: (builder) => {
@@ -62,8 +98,13 @@ const authSlice = createSlice({
       })
       .addCase(signUpUser.fulfilled, (state, action) => {
         state.status = 'succeeded';
-        state.user = action.payload;
-        localStorage.setItem('moringaPairUser', JSON.stringify(action.payload));
+        const user = { ...action.payload };
+        delete user.token;
+        state.user = user;
+        safeStorage.set('moringaPairUser', JSON.stringify(user));
+        if (action.payload?.token) {
+          safeStorage.set('moringaPairToken', action.payload.token);
+        }
       })
       .addCase(signUpUser.rejected, (state, action) => {
         state.status = 'failed';
@@ -75,8 +116,13 @@ const authSlice = createSlice({
       })
       .addCase(loginUser.fulfilled, (state, action) => {
         state.status = 'succeeded';
-        state.user = action.payload;
-        localStorage.setItem('moringaPairUser', JSON.stringify(action.payload));
+        const user = { ...action.payload };
+        delete user.token;
+        state.user = user;
+        safeStorage.set('moringaPairUser', JSON.stringify(user));
+        if (action.payload?.token) {
+          safeStorage.set('moringaPairToken', action.payload.token);
+        }
       })
       .addCase(loginUser.rejected, (state, action) => {
         state.status = 'failed';

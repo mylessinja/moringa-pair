@@ -5,6 +5,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import PairingPreviewList from '../components/PairingPreviewList';
 import PairingHistoryTable from '../components/PairingHistoryTable';
+import PairingStatusManager from '../components/PairingStatusManager';
 import { mockPairingRoster } from '../data/mockPairingRoster';
 import { mockPairingHistory } from '../data/mockPairingHistory';
 import { generatePairings } from '../utils/generatePairings';
@@ -78,12 +79,13 @@ export default function PairingsPage() {
   return (
     <AdminLayout
       pageTitle="Pairing Logic"
-      pageDescription="Generate weekly pairings, review pairing history, and export records."
+      pageDescription="Generate weekly pairings, review pairing history, manage pairing status, and export records."
     >
       <Tabs value={tab} onValueChange={setTab}>
         <TabsList>
           <TabsTrigger value="generate">Generate</TabsTrigger>
           <TabsTrigger value="history">Pairing History</TabsTrigger>
+          <TabsTrigger value="manage">Manage Status</TabsTrigger>
         </TabsList>
 
         <TabsContent value="generate" className="mt-4">
@@ -150,6 +152,10 @@ export default function PairingsPage() {
               )}
             </CardContent>
           </Card>
+        </TabsContent>
+
+        <TabsContent value="manage" className="mt-4">
+          <PairingStatusManager />
         </TabsContent>
       </Tabs>
     </AdminLayout>

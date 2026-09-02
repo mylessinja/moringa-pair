@@ -16,11 +16,12 @@ import MentorDashboardPage from '../features/mentor/pages/MentorDashboardPage';
 import MentorStudentsPage from '../features/mentor/pages/MentorStudentsPage';
 import MentorFeedbackPage from '../features/mentor/pages/MentorFeedbackPage';
 import MentorProfilePage from '../features/mentor/pages/MentorProfilePage';
+import LandingPage from '../pages/LandingPage';
 
 const AppRoutes = () => {
   return (
     <Routes>
-      <Route path="/" element={<Login />} />
+      <Route path="/" element={<LandingPage />} />
       <Route path="/signup" element={<SignUp />} />
       <Route path="/login" element={<Login />} />
       <Route path="/dashboard" element={<RequireAuth allowedRoles={['student']}><Dashboard /></RequireAuth>} />
